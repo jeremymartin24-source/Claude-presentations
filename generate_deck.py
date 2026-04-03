@@ -1,29 +1,21 @@
 #!/usr/bin/env python3
 """
-generate_deck.py — AI-powered PowerPoint generator matching the IT260 lecture deck style.
+generate_deck.py — Interactive PowerPoint generator in the IT260 lecture style.
 
-Claude chooses which slide types to use, in what order, and what content format
-fits each slide best. No fixed sequence is hardcoded.
+Prompts you step-by-step for module info, sections, and content, then shows
+a structured JSON deck plan for you to confirm or edit before building the .pptx.
+
+No API keys required.
 
 Usage:
-    python generate_deck.py --topic "Network Security Fundamentals" \
-                            --module 2 \
-                            --course "IT260 · IT Risk Management" \
-                            --professor "Professor Martin · University of Northwestern Ohio · Fall 2025" \
-                            --output "Module2.pptx"
-
-Environment:
-    ANTHROPIC_API_KEY  — required
+    python generate_deck.py
 """
-
-import argparse
 import json
 import sys
 from pptx import Presentation
 from pptx.util import Emu, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
-import anthropic
 
 # ── Design constants ───────────────────────────────────────────────────────────
 RED       = RGBColor(0x68, 0x00, 0x01)   # #680001  primary brand red
@@ -569,166 +561,404 @@ def build_slide(prs, slide_data, course, professor):
     builder(prs, slide_data, course, professor)
 
 
-# ── Claude API call ────────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """
-You are an expert instructional designer who creates university lecture slides
-in the exact style of the IT260 course at the University of Northwestern Ohio.
+# ── Interactive prompt helpers ─────────────────────────────────────────────────
 
-The deck uses a rich dark-red (#680001) and white color scheme, Calibri font,
-and follows these slide types. YOU choose which types to use and in what order
-based on what will best communicate the topic. Do not follow a fixed sequence.
-
-Available slide types and their required JSON fields:
-
-1. title
-   { "type": "title", "badge": "MODULE N", "title": "...", "subtitle": "..." }
-
-2. section_divider  (use to introduce each major section)
-   { "type": "section_divider", "label": "Module N", "title": "...", "subtitle": "..." }
-
-3. overview  (module overview / agenda — typically slide 2)
-   { "type": "overview", "heading": "Module N · Overview",
-     "intro": "...",
-     "sections": [ { "title": "...", "description": "..." }, ... ] }
-   Up to 6 sections, laid out 2-per-row.
-
-4. objectives  (learning objectives — use early in the deck)
-   { "type": "objectives", "heading": "Module N · Learning Objectives",
-     "intro": "By the end of this module, you will be able to:",
-     "items": [ "Describe ...", "Define ...", "Explain ..." ] }
-   Up to 6 items. Each is a complete sentence starting with an action verb.
-
-5. content_bullets  (single-column with red sub-headings + bullet lists)
-   { "type": "content_bullets", "heading": "Slide Title",
-     "intro": "Optional paragraph.",
-     "sections": [ { "heading": "Sub-heading", "bullets": [ "...", "..." ] } ] }
-   Best for narrative-heavy topics. Keep bullets concise (1–2 sentences max).
-
-6. content_columns  (2–3 parallel columns, each with a heading + bullets)
-   { "type": "content_columns", "heading": "Slide Title",
-     "intro": "Optional paragraph.",
-     "columns": [ { "heading": "...", "bullets": [ "..." ] } ] }
-   Best for comparing/contrasting concepts or presenting parallel categories.
-
-7. content_table  (a simple labeled table)
-   { "type": "content_table", "heading": "Slide Title",
-     "intro": "Optional paragraph.",
-     "columns": [ "Col A", "Col B", "Col C" ],
-     "rows": [ [ "cell", "cell", "cell" ], ... ] }
-   Best for structured comparisons, timelines, or side-by-side data.
-
-8. key_terms  (glossary of terms with definitions)
-   { "type": "key_terms", "heading": "Module N · Key Terms",
-     "terms": [ { "term": "...", "definition": "..." } ] }
-   Up to 8 terms. Definitions: 1–2 sentences, plain language.
-
-9. case_study  (real-world scenario with labelled panels)
-   { "type": "case_study", "heading": "Slide Title",
-     "intro": "Brief framing sentence.",
-     "panels": [ { "label": "The Situation", "content": "..." },
-                 { "label": "The Risk Gap",   "content": "..." },
-                 { "label": "⚠ Outcome",      "content": "..." } ] }
-   Best for real-world examples that illustrate a concept.
-
-10. takeaways  (closing summary — always use as the last content slide)
-    { "type": "takeaways", "heading": "Module N · Key Takeaways",
-      "items": [ "...", "..." ],
-      "next_module": "Next: Module N+1 — ..." }
-    6–8 items. Each starts with the key concept, not a number.
-
-11. assignment  (weekly focus / reflection prompts)
-    { "type": "assignment", "heading": "This Week — Focus and Assignment",
-      "intro": "...",
-      "items": [ { "number": 1, "text": "..." } ] }
-
-RULES:
-- Always start with a "title" slide and end with "takeaways".
-- Use "overview" as slide 2 and "objectives" as slide 3.
-- Use "section_divider" to introduce each major topic section.
-- Choose the best content slide type for each concept — do not default to
-  content_bullets for everything. Use tables for comparisons, columns for
-  parallel concepts, case_study for real examples.
-- Write like a professor speaking to students: clear, engaging, no jargon without explanation.
-- Total slides: 15–22 depending on depth needed.
-- Output ONLY valid JSON — no markdown fences, no prose, no comments.
-  The top-level JSON object must have a single key "slides" whose value is an array.
-""".strip()
+def ask(prompt_text, default=None):
+    """Single-line prompt. Returns stripped input or default."""
+    if default:
+        display = f"{prompt_text} [{default}]: "
+    else:
+        display = f"{prompt_text}: "
+    val = input(display).strip()
+    return val if val else (default or "")
 
 
-def generate_content(topic, module_num, course, professor, client):
-    user_msg = (
-        f"Create a complete lecture deck for the following:\n\n"
-        f"Course: {course}\n"
-        f"Module number: {module_num}\n"
-        f"Topic: {topic}\n"
-        f"Instructor line: {professor}\n\n"
-        f"Choose the right slide types, order, and content formats to best teach this topic."
-    )
+def ask_list(prompt_text, max_items=8, min_items=0):
+    """Collect a list of lines until blank. Returns list of non-empty strings."""
+    print(f"\n{prompt_text}")
+    print("  (press Enter on a blank line to finish)")
+    items = []
+    while len(items) < max_items:
+        line = input(f"  {len(items)+1}. ").strip()
+        if not line:
+            if len(items) >= min_items:
+                break
+            print(f"  Need at least {min_items} item(s).")
+        else:
+            items.append(line)
+    return items
 
-    print("Calling Claude API to generate slide content...", file=sys.stderr)
-    with client.messages.stream(
-        model="claude-opus-4-6",
-        max_tokens=8000,
-        thinking={"type": "adaptive"},
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_msg}],
-    ) as stream:
-        response = stream.get_final_message()
 
-    # Extract the text block (thinking blocks come first, skip them)
-    raw = ""
-    for block in response.content:
-        if block.type == "text":
-            raw = block.text
+def section_break(title):
+    print(f"\n{'─'*50}")
+    print(f"  {title}")
+    print(f"{'─'*50}")
+
+
+# ── Slide-type heuristics ──────────────────────────────────────────────────────
+
+COLUMN_WORDS  = {"types", "categories", "kinds", "forms", "pillars",
+                 "components", "elements", "three", "two", "four", "five"}
+TABLE_WORDS   = {"vs", "versus", "compare", "comparison", "difference",
+                 "contrast", "between", "against"}
+CASE_WORDS    = {"example", "case", "scenario", "incident", "attack",
+                 "breach", "failure", "real", "event", "story"}
+
+def detect_slide_type(title):
+    words = set(title.lower().split())
+    if words & TABLE_WORDS:
+        return "content_table"
+    if words & COLUMN_WORDS:
+        return "content_columns"
+    if words & CASE_WORDS:
+        return "case_study"
+    return "content_bullets"
+
+
+TYPE_MENU = """\
+  Content type for this section:
+    1. Narrative explanation  (bullet lists under sub-headings)
+    2. Side-by-side columns   (2–3 parallel columns)
+    3. Structured table       (rows and columns)
+    4. Real-world case study  (labelled panels)
+    5. Auto-detect from title
+"""
+
+TYPE_MAP = {
+    "1": "content_bullets",
+    "2": "content_columns",
+    "3": "content_table",
+    "4": "case_study",
+    "5": "auto",
+}
+
+
+# ── Section content gatherers ──────────────────────────────────────────────────
+
+def gather_bullets(section_title):
+    """Return content_bullets slide data."""
+    print(f"\n  Gathering bullet content for: {section_title}")
+    num_subs = int(ask("  How many sub-headings?", "2"))
+    sections = []
+    for i in range(max(1, min(num_subs, 4))):
+        heading = ask(f"  Sub-heading {i+1}")
+        bullets = ask_list(f"  Bullets under '{heading}'", max_items=6, min_items=1)
+        sections.append({"heading": heading, "bullets": bullets})
+    intro = ask("  Optional intro sentence (or Enter to skip)")
+    return {
+        "type": "content_bullets",
+        "heading": section_title,
+        "intro": intro,
+        "sections": sections,
+    }
+
+
+def gather_columns(section_title):
+    """Return content_columns slide data."""
+    print(f"\n  Gathering column content for: {section_title}")
+    num_cols = int(ask("  How many columns? (2 or 3)", "2"))
+    columns = []
+    for i in range(max(2, min(num_cols, 3))):
+        heading = ask(f"  Column {i+1} heading")
+        bullets = ask_list(f"  Bullets under '{heading}'", max_items=6, min_items=1)
+        columns.append({"heading": heading, "bullets": bullets})
+    intro = ask("  Optional intro sentence (or Enter to skip)")
+    return {
+        "type": "content_columns",
+        "heading": section_title,
+        "intro": intro,
+        "columns": columns,
+    }
+
+
+def gather_table(section_title):
+    """Return content_table slide data."""
+    print(f"\n  Gathering table content for: {section_title}")
+    col_input = ask("  Column headers (comma-separated)", "Term, Definition, Example")
+    columns = [c.strip() for c in col_input.split(",") if c.strip()]
+    intro = ask("  Optional intro sentence (or Enter to skip)")
+    print(f"\n  Enter table rows. Each row: comma-separated values ({len(columns)} columns).")
+    print("  (blank line to finish)")
+    rows = []
+    while True:
+        row_input = input(f"  Row {len(rows)+1}: ").strip()
+        if not row_input:
+            if rows:
+                break
+            print("  Need at least one row.")
+            continue
+        cells = [c.strip() for c in row_input.split(",")]
+        # Pad or trim to match column count
+        while len(cells) < len(columns):
+            cells.append("")
+        rows.append(cells[:len(columns)])
+    return {
+        "type": "content_table",
+        "heading": section_title,
+        "intro": intro,
+        "columns": columns,
+        "rows": rows,
+    }
+
+
+def gather_case_study(section_title):
+    """Return case_study slide data."""
+    print(f"\n  Gathering case study content for: {section_title}")
+    intro = ask("  One-sentence framing (what this example illustrates)")
+    print("\n  Enter panels (label + content). Blank label to finish. Suggested labels:")
+    print("    The Threat / The Vulnerability / ⚠ The Impact  — or name them yourself.")
+    panels = []
+    while len(panels) < 5:
+        label = input(f"\n  Panel {len(panels)+1} label (or blank to finish): ").strip()
+        if not label and panels:
             break
+        elif not label:
+            print("  Need at least one panel.")
+            continue
+        content = ask(f"  Panel '{label}' content")
+        panels.append({"label": label, "content": content})
+    return {
+        "type": "case_study",
+        "heading": section_title,
+        "intro": intro,
+        "panels": panels,
+    }
 
-    # Strip any accidental markdown fences
-    raw = raw.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    raw = raw.strip()
 
-    return json.loads(raw)
+GATHERERS = {
+    "content_bullets": gather_bullets,
+    "content_columns": gather_columns,
+    "content_table":   gather_table,
+    "case_study":      gather_case_study,
+}
 
 
-# ── CLI entry point ────────────────────────────────────────────────────────────
+# ── Plan builder ───────────────────────────────────────────────────────────────
+
+def build_plan(meta, objectives, sections, key_terms, assignment, takeaways, next_mod):
+    """Assemble the full slides list from gathered data."""
+    mod = meta["module"]
+    slides = []
+
+    # 1. Title
+    slides.append({
+        "type": "title",
+        "badge": f"MODULE {mod}",
+        "title": meta["title"],
+        "subtitle": meta["subtitle"],
+    })
+
+    # 2. Overview — built from section titles + descriptions
+    overview_sections = [
+        {"title": s["title"], "description": s["description"]}
+        for s in sections
+    ]
+    slides.append({
+        "type": "overview",
+        "heading": f"Module {mod} · Overview",
+        "intro": meta.get("overview_intro", ""),
+        "sections": overview_sections,
+    })
+
+    # 3. Objectives
+    slides.append({
+        "type": "objectives",
+        "heading": f"Module {mod} · Learning Objectives",
+        "intro": "By the end of this module, you will be able to:",
+        "items": objectives,
+    })
+
+    # 4. Sections — each gets a divider + content slide
+    for sec in sections:
+        slides.append({
+            "type": "section_divider",
+            "label": f"Module {mod}",
+            "title": sec["title"],
+            "subtitle": sec["description"],
+        })
+        slides.append(sec["content"])
+
+    # 5. Key terms
+    if key_terms:
+        slides.append({
+            "type": "key_terms",
+            "heading": f"Module {mod} · Key Terms",
+            "terms": key_terms,
+        })
+
+    # 6. Assignment
+    if assignment:
+        slides.append(assignment)
+
+    # 7. Takeaways
+    slides.append({
+        "type": "takeaways",
+        "heading": f"Module {mod} · Key Takeaways",
+        "items": takeaways,
+        "next_module": f"Next: {next_mod}" if next_mod else "",
+    })
+
+    return {"meta": meta, "slides": slides}
+
+
+# ── Confirmation / edit loop ───────────────────────────────────────────────────
+
+def confirm_plan(plan):
+    """Show plan as JSON, let user confirm or paste edits. Returns final plan dict."""
+    json_str = json.dumps(plan, indent=2)
+    print("\n" + "═"*60)
+    print("  DECK PLAN")
+    print("═"*60)
+    print(json_str)
+    print("═"*60)
+    print("\nConfirm this plan?")
+    print("  Y / Enter  — build the deck")
+    print("  q          — quit")
+    print("  (paste)    — paste edited JSON, then type END on its own line\n")
+
+    while True:
+        response = input("> ").strip()
+        if response.lower() in ("y", ""):
+            return plan
+        if response.lower() == "q":
+            print("Aborted.")
+            sys.exit(0)
+        # Treat as start of pasted JSON
+        lines = [response]
+        print("Paste your edited JSON. Type END on its own line when done.")
+        while True:
+            line = input()
+            if line.strip() == "END":
+                break
+            lines.append(line)
+        raw = "\n".join(lines)
+        try:
+            edited = json.loads(raw)
+            print("✓ Parsed edited JSON.")
+            return edited
+        except json.JSONDecodeError as e:
+            print(f"JSON parse error: {e}")
+            print("Try again — Y to use original, q to quit, or paste again.")
+
+
+# ── Main interactive flow ──────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate a styled PowerPoint deck using the Anthropic API."
-    )
-    parser.add_argument("--topic",     required=True,  help="Module topic (e.g. 'Network Security Fundamentals')")
-    parser.add_argument("--module",    required=True,  help="Module number (e.g. 2)")
-    parser.add_argument("--course",    default="IT260 · IT Risk Management",
-                        help="Course name label")
-    parser.add_argument("--professor", default="Professor Martin · University of Northwestern Ohio · Fall 2025",
-                        help="Professor / institution / term line")
-    parser.add_argument("--output",    default=None,   help="Output .pptx path (default: Module<N>.pptx)")
-    args = parser.parse_args()
+    print("\n" + "═"*60)
+    print("  IT260 Lecture Deck Generator")
+    print("═"*60)
 
-    output_path = args.output or f"Module{args.module}.pptx"
+    # ── Step 1: Basic info ─────────────────────────────────────────────────
+    section_break("Step 1 of 6 — Basic Info")
+    course    = ask("Course name", "IT260 · IT Risk Management")
+    mod_num   = ask("Module number")
+    title     = ask("Module title")
+    subtitle  = ask("Module tagline (one sentence)")
+    professor = ask("Professor · University · Term",
+                    "Professor Martin · University of Northwestern Ohio · Fall 2025")
+    output    = ask("Output filename", f"Module{mod_num}.pptx")
+    ov_intro  = ask("Overview slide intro sentence (summarises the module in 1–2 lines)")
 
-    client = anthropic.Anthropic()   # reads ANTHROPIC_API_KEY from env
+    meta = {
+        "course": course,
+        "module": mod_num,
+        "title": title,
+        "subtitle": subtitle,
+        "professor": professor,
+        "output": output,
+        "overview_intro": ov_intro,
+    }
 
-    # 1. Generate slide content via Claude
-    deck_data = generate_content(args.topic, args.module, args.course, args.professor, client)
+    # ── Step 2: Learning objectives ────────────────────────────────────────
+    section_break("Step 2 of 6 — Learning Objectives")
+    print("  Action-verb sentences (Describe…, Define…, Explain…, Apply…)")
+    objectives = ask_list("Enter objectives", max_items=6, min_items=2)
 
-    slides = deck_data.get("slides", [])
-    print(f"Generated {len(slides)} slides.", file=sys.stderr)
+    # ── Step 3: Sections ───────────────────────────────────────────────────
+    section_break("Step 3 of 6 — Topic Sections")
+    num_sections = int(ask("How many major topic sections?", "3"))
+    sections = []
+    for i in range(max(1, min(num_sections, 5))):
+        print(f"\n  ── Section {i+1} of {num_sections} ──")
+        sec_title = ask("  Section title")
+        sec_desc  = ask("  One-sentence description (shown on Overview slide)")
 
-    # 2. Build the PPTX
+        print(TYPE_MENU)
+        choice = ask("  Choice", "5").strip()
+        stype = TYPE_MAP.get(choice, "auto")
+        if stype == "auto":
+            stype = detect_slide_type(sec_title)
+            print(f"  → Auto-detected type: {stype}")
+
+        gatherer = GATHERERS.get(stype, gather_bullets)
+        content_slide = gatherer(sec_title)
+
+        sections.append({
+            "title": sec_title,
+            "description": sec_desc,
+            "content": content_slide,
+        })
+
+    # ── Step 4: Key terms ──────────────────────────────────────────────────
+    section_break("Step 4 of 6 — Key Terms")
+    key_terms = []
+    if ask("Include a Key Terms slide? (y/n)", "y").lower() == "y":
+        print("  Enter terms. Blank term to finish.")
+        while len(key_terms) < 8:
+            term = input(f"\n  Term {len(key_terms)+1} (or blank to finish): ").strip()
+            if not term:
+                break
+            definition = ask(f"  Definition for '{term}'")
+            key_terms.append({"term": term, "definition": definition})
+
+    # ── Step 5: Assignment ─────────────────────────────────────────────────
+    section_break("Step 5 of 6 — Assignment")
+    assignment = None
+    if ask("Include an Assignment slide? (y/n)", "y").lower() == "y":
+        a_intro = ask("Assignment intro sentence")
+        a_items = []
+        print("  Enter assignment prompts. Blank to finish.")
+        while len(a_items) < 4:
+            text = input(f"\n  Prompt {len(a_items)+1} (or blank to finish): ").strip()
+            if not text:
+                if a_items:
+                    break
+            else:
+                a_items.append({"number": len(a_items)+1, "text": text})
+        assignment = {
+            "type": "assignment",
+            "heading": "This Week — Focus and Assignment",
+            "intro": a_intro,
+            "items": a_items,
+        }
+
+    # ── Step 6: Takeaways ──────────────────────────────────────────────────
+    section_break("Step 6 of 6 — Key Takeaways")
+    print("  Enter 4–8 takeaway statements (one per line).")
+    takeaways = ask_list("Takeaways", max_items=8, min_items=4)
+    next_mod  = ask("Next module title (or blank to skip)")
+
+    # ── Build plan & confirm ───────────────────────────────────────────────
+    plan = build_plan(meta, objectives, sections, key_terms, assignment, takeaways, next_mod)
+    plan = confirm_plan(plan)
+
+    # ── Render PPTX ───────────────────────────────────────────────────────
+    slides   = plan.get("slides", [])
+    out_meta = plan.get("meta", meta)
+    course_l = out_meta.get("course", course)
+    prof_l   = out_meta.get("professor", professor)
+    out_file = out_meta.get("output", output)
+
+    print(f"\nBuilding {len(slides)} slides…")
     prs = new_presentation()
     for i, slide_data in enumerate(slides):
         stype = slide_data.get("type", "?")
-        print(f"  Building slide {i+1}/{len(slides)}: {stype}", file=sys.stderr)
-        build_slide(prs, slide_data, args.course, args.professor)
+        print(f"  [{i+1}/{len(slides)}] {stype}")
+        build_slide(prs, slide_data, course_l, prof_l)
 
-    prs.save(output_path)
-    print(f"\n✓ Saved: {output_path}", file=sys.stderr)
-    print(output_path)
+    prs.save(out_file)
+    print(f"\n✓ Saved: {out_file}")
 
 
 if __name__ == "__main__":
