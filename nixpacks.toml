@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ['python3', 'gcc', 'gnumake']
+
+[phases.build]
+cmds = [
+  'cd client && npm install && npm run build',
+  'cd server && npm install --build-from-source'
+]
+
+[start]
+cmd = 'cd server && npm start'
