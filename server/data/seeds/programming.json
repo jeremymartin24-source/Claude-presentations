@@ -1,0 +1,373 @@
+[
+  {
+    "type": "mc",
+    "question": "What is the Big O time complexity of accessing an element by index in an array?",
+    "options": ["O(log n)", "O(n)", "O(1)", "O(n²)"],
+    "answer": "O(1)",
+    "hint": "Arrays store elements in contiguous memory, so any index can be computed directly.",
+    "category": "Big O Notation",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which OOP principle hides internal implementation details and only exposes a public interface?",
+    "options": ["Inheritance", "Polymorphism", "Encapsulation", "Abstraction"],
+    "answer": "Encapsulation",
+    "hint": "Private fields with public getter/setter methods are the classic example.",
+    "category": "Object-Oriented Programming",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What type of error occurs when code is syntactically correct but produces incorrect results?",
+    "options": ["Syntax error", "Runtime error", "Logic error", "Compile error"],
+    "answer": "Logic error",
+    "hint": "The code runs without crashing, but the output is wrong — the programmer's reasoning was flawed.",
+    "category": "Debugging",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "In a stack data structure, which element is removed first?",
+    "options": [
+      "The element at the bottom (first inserted)",
+      "The element at the top (last inserted)",
+      "A random element",
+      "The element with the smallest value"
+    ],
+    "answer": "The element at the top (last inserted)",
+    "hint": "Stacks follow LIFO — Last In, First Out.",
+    "category": "Data Structures",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which sorting algorithm works by repeatedly finding the minimum element and placing it at the beginning of the unsorted portion?",
+    "options": ["Bubble Sort", "Merge Sort", "Quick Sort", "Selection Sort"],
+    "answer": "Selection Sort",
+    "hint": "Each pass 'selects' the smallest remaining element.",
+    "category": "Algorithms",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the worst-case time complexity of Bubble Sort?",
+    "options": ["O(1)", "O(log n)", "O(n log n)", "O(n²)"],
+    "answer": "O(n²)",
+    "hint": "For each of the n elements, you may need to make up to n comparisons.",
+    "category": "Algorithms",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is recursion in programming?",
+    "options": [
+      "A loop that runs a fixed number of times",
+      "A function that calls itself with a modified argument until a base case is reached",
+      "A method that inherits behavior from a parent class",
+      "A design pattern for creating objects"
+    ],
+    "answer": "A function that calls itself with a modified argument until a base case is reached",
+    "hint": "Without a base case, recursion leads to a stack overflow.",
+    "category": "Recursion",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which of the following best describes polymorphism in OOP?",
+    "options": [
+      "A class can only have one method with a given name",
+      "Objects of different classes can be treated as objects of a common superclass, and the correct method is called based on the actual object type",
+      "A subclass automatically has all the attributes of its superclass",
+      "Data and methods are bundled together inside an object"
+    ],
+    "answer": "Objects of different classes can be treated as objects of a common superclass, and the correct method is called based on the actual object type",
+    "hint": "Method overriding is the most common form of runtime polymorphism.",
+    "category": "Object-Oriented Programming",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Binary search requires that the input array be:",
+    "options": [
+      "Stored in a linked list",
+      "Sorted in ascending or descending order",
+      "Containing only integers",
+      "Of even length"
+    ],
+    "answer": "Sorted in ascending or descending order",
+    "hint": "Binary search works by eliminating half the remaining elements each step — which only makes sense if the data is ordered.",
+    "category": "Algorithms",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the key difference between a compiler and an interpreter?",
+    "options": [
+      "A compiler is used for object-oriented languages; an interpreter for procedural languages",
+      "A compiler translates the entire source code to machine code before execution; an interpreter translates and executes code line by line",
+      "A compiler only checks for syntax errors; an interpreter executes the code",
+      "A compiler runs in the cloud; an interpreter runs locally"
+    ],
+    "answer": "A compiler translates the entire source code to machine code before execution; an interpreter translates and executes code line by line",
+    "hint": "C/C++ are compiled; Python is interpreted.",
+    "category": "Compilers vs Interpreters",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "In Git, what does 'git commit' do?",
+    "options": [
+      "Uploads changes to the remote repository",
+      "Creates a snapshot of the currently staged changes in the local repository history",
+      "Downloads the latest changes from the remote branch",
+      "Merges the current branch into the main branch"
+    ],
+    "answer": "Creates a snapshot of the currently staged changes in the local repository history",
+    "hint": "A commit is a local operation — you still need 'git push' to send it to a remote.",
+    "category": "Version Control",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the time complexity of binary search on a sorted array of n elements?",
+    "options": ["O(1)", "O(n)", "O(log n)", "O(n log n)"],
+    "answer": "O(log n)",
+    "hint": "Each step halves the search space, which grows logarithmically.",
+    "category": "Big O Notation",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "A function that takes parameters and returns a value is called with specific values — what are those specific values called?",
+    "options": ["Parameters", "Arguments", "Variables", "Attributes"],
+    "answer": "Arguments",
+    "hint": "Parameters are in the function definition; arguments are in the function call.",
+    "category": "Functions",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which data structure would be most efficient for implementing a print queue (first job submitted should print first)?",
+    "options": ["Stack", "Queue", "Binary Tree", "Hash Map"],
+    "answer": "Queue",
+    "hint": "Queues follow FIFO — First In, First Out.",
+    "category": "Data Structures",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is abstraction in object-oriented programming?",
+    "options": [
+      "Inheriting methods from a parent class without modification",
+      "Hiding complex implementation details and exposing only essential features through a simplified interface",
+      "Storing multiple values in a single variable",
+      "Calling a method with different numbers of arguments"
+    ],
+    "answer": "Hiding complex implementation details and exposing only essential features through a simplified interface",
+    "hint": "When you call a library function, you don't need to know how it works internally — that's abstraction.",
+    "category": "Object-Oriented Programming",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "A 'do-while' loop always executes its body at least once, even if the condition is false from the start.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "The condition is evaluated at the end of the loop, not the beginning.",
+    "category": "Control Flow",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "In most programming languages, arrays are zero-indexed, meaning the first element is at index 0.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "An array of 5 elements has valid indices 0 through 4.",
+    "category": "Data Types",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "Merge Sort has a worst-case time complexity of O(n²), making it less efficient than Bubble Sort on large datasets.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "Merge Sort's worst case is O(n log n), which is far better than Bubble Sort's O(n²).",
+    "category": "Algorithms",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "A child class inheriting from a parent class can override methods defined in the parent class.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "Method overriding is a fundamental feature of inheritance in OOP.",
+    "category": "Object-Oriented Programming",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "In Git, 'git push' and 'git commit' perform the same operation — both save changes to the remote repository.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "'git commit' saves changes locally; 'git push' sends committed changes to the remote.",
+    "category": "Version Control",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "short",
+    "question": "Explain the difference between a syntax error, a runtime error, and a logic error. Give an example of each.",
+    "answer": "A syntax error is a violation of the language's grammar rules, caught before execution (e.g., missing a closing parenthesis). A runtime error occurs during program execution and causes a crash (e.g., dividing by zero or accessing a null pointer). A logic error means the code runs without crashing but produces wrong results (e.g., using '+' instead of '-' in a calculation).",
+    "hint": "Think: caught before run, crash during run, wrong answer after run.",
+    "category": "Debugging",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is a linked list, and what is one advantage and one disadvantage compared to an array?",
+    "answer": "A linked list is a data structure where each element (node) contains a value and a pointer to the next node in the sequence, rather than storing elements in contiguous memory. Advantage: efficient O(1) insertions and deletions at any position (just update pointers). Disadvantage: O(n) access time for any element since you must traverse from the head — unlike arrays which provide O(1) indexed access.",
+    "hint": "Think about how memory is laid out for each structure.",
+    "category": "Data Structures",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What does it mean for an algorithm to be O(n log n), and which common sorting algorithms achieve this complexity?",
+    "answer": "O(n log n) means the algorithm's running time grows proportionally to n multiplied by the log of n. As input size doubles, time slightly more than doubles. This is much better than O(n²) for large inputs. Common O(n log n) sorting algorithms include Merge Sort and Quick Sort (average case). Merge Sort guarantees O(n log n) in all cases.",
+    "hint": "This is the best possible time complexity for a comparison-based sort.",
+    "category": "Big O Notation",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is the purpose of version control systems like Git, and what problem do they solve?",
+    "answer": "Version control systems track changes to source code over time, allowing developers to see history, revert to previous states, and collaborate without overwriting each other's work. Git solves the problem of managing code changes across multiple developers, enabling branching for isolated feature development and merging to combine work, preventing 'it worked on my machine' conflicts and accidental data loss.",
+    "hint": "Think about what happens when two programmers edit the same file without coordination.",
+    "category": "Version Control",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "Explain what recursion is and describe what must be present in every recursive function to prevent infinite recursion.",
+    "answer": "Recursion is when a function calls itself as part of its own definition. Every recursive function must have a base case — a condition that stops the recursion and returns a value directly without another recursive call. Without a base case, the function keeps calling itself indefinitely, eventually causing a stack overflow error when the call stack runs out of memory.",
+    "hint": "What stops the function from calling itself forever?",
+    "category": "Recursion",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "order",
+    "question": "Order the steps that occur when a compiled language program (like C++) is built and executed.",
+    "options": [
+      "CPU executes the machine code instructions",
+      "Programmer writes source code (.cpp file)",
+      "Linker combines object files and libraries into an executable",
+      "Compiler translates source code into object code (machine code)"
+    ],
+    "answer": "Programmer writes source code (.cpp file)|Compiler translates source code into object code (machine code)|Linker combines object files and libraries into an executable|CPU executes the machine code instructions",
+    "hint": "Write → Compile → Link → Run.",
+    "category": "Compilers vs Interpreters",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the steps of Merge Sort from start to finish.",
+    "options": [
+      "Recursively divide subarrays until each has one element",
+      "Merge adjacent subarrays in sorted order",
+      "Receive the unsorted array as input",
+      "Return the fully merged, sorted array"
+    ],
+    "answer": "Receive the unsorted array as input|Recursively divide subarrays until each has one element|Merge adjacent subarrays in sorted order|Return the fully merged, sorted array",
+    "hint": "Divide first, then conquer by merging.",
+    "category": "Algorithms",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the four pillars of Object-Oriented Programming from most foundational to most advanced concept.",
+    "options": [
+      "Polymorphism",
+      "Abstraction",
+      "Encapsulation",
+      "Inheritance"
+    ],
+    "answer": "Encapsulation|Abstraction|Inheritance|Polymorphism",
+    "hint": "Bundle data first, hide complexity, then build hierarchies, then allow flexible behavior.",
+    "category": "Object-Oriented Programming",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "bingo_term",
+    "question": "A programming concept where a function calls itself with progressively simpler inputs until it reaches a stopping condition, commonly used to solve problems that can be broken into smaller instances of the same problem.",
+    "answer": "Recursion",
+    "category": "Recursion",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "bingo_term",
+    "question": "A notation used to describe the upper bound of an algorithm's time or space requirements as a function of input size, describing how performance scales in the worst case.",
+    "answer": "Big O Notation",
+    "category": "Big O Notation",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  }
+]

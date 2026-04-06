@@ -1,0 +1,384 @@
+[
+  {
+    "type": "mc",
+    "question": "What is a primary key in a relational database?",
+    "options": [
+      "A column that stores the most frequently queried data",
+      "A column (or set of columns) that uniquely identifies each row in a table",
+      "A column that references a row in another table",
+      "The first column defined in a CREATE TABLE statement"
+    ],
+    "answer": "A column (or set of columns) that uniquely identifies each row in a table",
+    "hint": "Primary keys must be unique and cannot be NULL.",
+    "category": "Relational Concepts",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which SQL clause is used to filter rows returned by a SELECT statement?",
+    "options": ["ORDER BY", "GROUP BY", "HAVING", "WHERE"],
+    "answer": "WHERE",
+    "hint": "This clause is evaluated before grouping; HAVING is evaluated after.",
+    "category": "SQL",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What does an INNER JOIN return?",
+    "options": [
+      "All rows from the left table, plus matching rows from the right table",
+      "All rows from both tables regardless of whether they match",
+      "Only the rows where there is a matching value in both joined tables",
+      "All rows from the right table, plus matching rows from the left table"
+    ],
+    "answer": "Only the rows where there is a matching value in both joined tables",
+    "hint": "Think of it as the intersection of two sets.",
+    "category": "SQL",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which ACID property ensures that a transaction is treated as a single indivisible unit — it either completes fully or is fully rolled back?",
+    "options": ["Consistency", "Isolation", "Durability", "Atomicity"],
+    "answer": "Atomicity",
+    "hint": "The word 'atom' means indivisible — all or nothing.",
+    "category": "ACID Properties",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "A table is in First Normal Form (1NF) when:",
+    "options": [
+      "All non-key attributes are fully dependent on the entire primary key",
+      "All columns contain atomic (indivisible) values and each column contains values of a single type",
+      "There are no transitive dependencies between non-key attributes",
+      "All foreign keys reference valid primary keys in other tables"
+    ],
+    "answer": "All columns contain atomic (indivisible) values and each column contains values of a single type",
+    "hint": "Storing a comma-separated list of values in one column violates 1NF.",
+    "category": "Normalization",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is a foreign key?",
+    "options": [
+      "A key imported from a different database vendor",
+      "A column in one table that references the primary key of another table, establishing a relationship between the tables",
+      "An alternate primary key that can also uniquely identify a row",
+      "An encrypted column used for storing sensitive data"
+    ],
+    "answer": "A column in one table that references the primary key of another table, establishing a relationship between the tables",
+    "hint": "Foreign keys enforce referential integrity between related tables.",
+    "category": "Relational Concepts",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which SQL statement would you use to permanently remove a row from a table?",
+    "options": ["REMOVE", "TRUNCATE", "DROP", "DELETE"],
+    "answer": "DELETE",
+    "hint": "TRUNCATE removes all rows without logging individual row deletions; DELETE removes specific rows and can be rolled back.",
+    "category": "SQL",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the primary purpose of a database index?",
+    "options": [
+      "To enforce uniqueness constraints on columns",
+      "To encrypt sensitive columns for security",
+      "To speed up data retrieval by creating a data structure that allows faster lookup without scanning every row",
+      "To automatically back up table data"
+    ],
+    "answer": "To speed up data retrieval by creating a data structure that allows faster lookup without scanning every row",
+    "hint": "Think of a book's index — it lets you find a topic without reading every page.",
+    "category": "Indexes",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "MongoDB is an example of which type of NoSQL database?",
+    "options": ["Key-Value store", "Columnar database", "Document database", "Graph database"],
+    "answer": "Document database",
+    "hint": "MongoDB stores data as BSON (Binary JSON) documents.",
+    "category": "NoSQL",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which SQL clause filters results AFTER aggregation (e.g., after GROUP BY)?",
+    "options": ["WHERE", "HAVING", "FILTER", "AND"],
+    "answer": "HAVING",
+    "hint": "You cannot use aggregate functions like COUNT() or SUM() in a WHERE clause.",
+    "category": "SQL",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is a database view?",
+    "options": [
+      "A physical copy of a table stored on a separate disk",
+      "A virtual table defined by a stored SELECT query that can be queried like a real table",
+      "A graphical representation of table relationships",
+      "A cache of frequently accessed rows"
+    ],
+    "answer": "A virtual table defined by a stored SELECT query that can be queried like a real table",
+    "hint": "Views do not store data themselves — they always reflect the current state of the underlying tables.",
+    "category": "Views and Procedures",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which ACID property ensures that once a transaction is committed, it will remain committed even in the event of a system failure?",
+    "options": ["Atomicity", "Consistency", "Isolation", "Durability"],
+    "answer": "Durability",
+    "hint": "This property is typically implemented through transaction logs and write-ahead logging.",
+    "category": "ACID Properties",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "In an ER diagram, what does a 'crow's foot' notation at the end of a relationship line indicate?",
+    "options": [
+      "The entity is optional in the relationship",
+      "The entity participates exactly once",
+      "The entity can participate many times (the 'many' side of a relationship)",
+      "The entity is a weak entity"
+    ],
+    "answer": "The entity can participate many times (the 'many' side of a relationship)",
+    "hint": "The crow's foot symbol looks like a three-pronged fork and represents 'many'.",
+    "category": "ER Diagrams",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the key difference between SQL and NoSQL databases in terms of schema?",
+    "options": [
+      "SQL databases have no schema; NoSQL databases require a strict schema",
+      "SQL databases require a predefined, rigid schema; NoSQL databases are typically schema-flexible or schema-less",
+      "Both types require identical schema definitions before data can be inserted",
+      "SQL databases support dynamic schemas; NoSQL databases require fixed schemas"
+    ],
+    "answer": "SQL databases require a predefined, rigid schema; NoSQL databases are typically schema-flexible or schema-less",
+    "hint": "NoSQL's flexibility is one reason it's popular for rapidly evolving data models.",
+    "category": "SQL vs NoSQL",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is a stored procedure in a relational database?",
+    "options": [
+      "A rule that automatically executes when data is modified",
+      "A saved query that acts as a virtual table",
+      "A precompiled set of SQL statements stored in the database that can be called by name",
+      "A physical backup of a database table"
+    ],
+    "answer": "A precompiled set of SQL statements stored in the database that can be called by name",
+    "hint": "Stored procedures improve performance and code reuse by keeping logic in the database.",
+    "category": "Views and Procedures",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "A LEFT JOIN returns all rows from the left table, including rows that have no match in the right table (with NULLs for missing right-table columns).",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "INNER JOIN drops unmatched rows; LEFT JOIN keeps all left-table rows.",
+    "category": "SQL",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "Adding an index to a table always improves both read and write performance.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "Indexes speed up reads but slow down writes (INSERT, UPDATE, DELETE) because the index must also be maintained.",
+    "category": "Indexes",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "In Third Normal Form (3NF), there must be no transitive dependencies — every non-key attribute must depend only on the primary key.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "A transitive dependency means a non-key column depends on another non-key column rather than the primary key.",
+    "category": "Normalization",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "Redis is a document database best suited for storing complex nested JSON documents.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "Redis is a key-value store optimized for speed and caching; MongoDB is a document database.",
+    "category": "NoSQL",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "A database transaction can include multiple SQL statements, and all of them will be committed or rolled back together.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "This is the Atomicity property of ACID — a transaction is an all-or-nothing operation.",
+    "category": "ACID Properties",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "short",
+    "question": "Explain the difference between a LEFT JOIN and an INNER JOIN with a concrete example.",
+    "answer": "An INNER JOIN returns only rows where there is a match in both tables. A LEFT JOIN returns all rows from the left table plus matched rows from the right table; where no match exists, right-table columns appear as NULL. Example: if you LEFT JOIN a Customers table to an Orders table, customers with no orders still appear in the results (with NULL order columns). An INNER JOIN would exclude those customers entirely.",
+    "hint": "Think about which records get dropped vs. kept.",
+    "category": "SQL",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What are the four ACID properties, and why are they important for database transactions?",
+    "answer": "Atomicity: a transaction is all-or-nothing. Consistency: a transaction brings the database from one valid state to another. Isolation: concurrent transactions do not interfere with each other. Durability: committed data persists even after a crash. These properties are important because they guarantee data integrity and reliability, especially in concurrent multi-user environments where partial failures could corrupt data.",
+    "hint": "Think about what would go wrong if each property were absent.",
+    "category": "ACID Properties",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is database normalization, and what problem does it solve?",
+    "answer": "Normalization is the process of organizing a relational database to reduce data redundancy and improve data integrity by decomposing tables into smaller, related tables. It solves problems like update anomalies (changing the same data in multiple places), insertion anomalies (unable to add data without adding unrelated data), and deletion anomalies (losing data unintentionally when deleting a row).",
+    "hint": "It's about reducing redundancy and the anomalies that come with it.",
+    "category": "Normalization",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is the difference between a trigger and a stored procedure in a database?",
+    "answer": "A stored procedure is a reusable block of SQL that is explicitly called by a user or application. A trigger is also a block of SQL, but it executes automatically in response to a specific event on a table — such as an INSERT, UPDATE, or DELETE — without being called directly. Triggers are useful for enforcing business rules and maintaining audit logs automatically.",
+    "hint": "One is called manually; the other fires automatically based on data events.",
+    "category": "Views and Procedures",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "Explain when you would choose a NoSQL database over a relational database, and give an example use case.",
+    "answer": "NoSQL databases are preferred when you need to handle massive scale (horizontal scaling), unstructured or highly variable data, or very high write throughput. Example: a social media platform storing user activity feeds where each user's data is slightly different and needs to be retrieved extremely fast. MongoDB could store each user's feed as a document. SQL databases are better when data relationships are complex, transactional integrity is critical, and the schema is well-defined.",
+    "hint": "Think about schema flexibility, scale, and consistency needs.",
+    "category": "SQL vs NoSQL",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "order",
+    "question": "Order the normalization forms from least to most normalized.",
+    "options": [
+      "Second Normal Form (2NF) — no partial dependencies",
+      "Third Normal Form (3NF) — no transitive dependencies",
+      "Unnormalized (data may contain repeating groups)",
+      "First Normal Form (1NF) — atomic values, no repeating groups"
+    ],
+    "answer": "Unnormalized (data may contain repeating groups)|First Normal Form (1NF) — atomic values, no repeating groups|Second Normal Form (2NF) — no partial dependencies|Third Normal Form (3NF) — no transitive dependencies",
+    "hint": "Each higher form builds on the previous one.",
+    "category": "Normalization",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the SQL query execution order — the logical sequence in which SQL clauses are processed.",
+    "options": [
+      "SELECT (choose columns)",
+      "ORDER BY (sort result)",
+      "FROM / JOIN (identify tables)",
+      "WHERE (filter rows)",
+      "GROUP BY / HAVING (aggregate and filter groups)"
+    ],
+    "answer": "FROM / JOIN (identify tables)|WHERE (filter rows)|GROUP BY / HAVING (aggregate and filter groups)|SELECT (choose columns)|ORDER BY (sort result)",
+    "hint": "Think about what the database needs to know before it can do each step.",
+    "category": "SQL",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the steps for safely executing a multi-statement database transaction.",
+    "options": [
+      "Execute each SQL statement in the transaction",
+      "Begin the transaction (BEGIN TRANSACTION)",
+      "Handle errors: if any step fails, execute ROLLBACK",
+      "If all steps succeed, execute COMMIT"
+    ],
+    "answer": "Begin the transaction (BEGIN TRANSACTION)|Execute each SQL statement in the transaction|Handle errors: if any step fails, execute ROLLBACK|If all steps succeed, execute COMMIT",
+    "hint": "Start, do work, then either save or undo.",
+    "category": "ACID Properties",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "bingo_term",
+    "question": "A column or set of columns in a relational database table that uniquely and minimally identifies every row in that table; it cannot contain NULL values.",
+    "answer": "Primary Key",
+    "category": "Relational Concepts",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "bingo_term",
+    "question": "A database object that automatically executes a defined block of SQL code in response to a specific data modification event (INSERT, UPDATE, or DELETE) on a table.",
+    "answer": "Trigger",
+    "category": "Views and Procedures",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  }
+]

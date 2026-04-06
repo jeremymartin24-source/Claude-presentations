@@ -1,0 +1,383 @@
+[
+  {
+    "type": "mc",
+    "question": "What is the primary function of the ALU (Arithmetic Logic Unit) inside a CPU?",
+    "options": [
+      "Store frequently accessed data for fast retrieval",
+      "Fetch and decode instructions from memory",
+      "Perform arithmetic operations (add, subtract) and logical operations (AND, OR, NOT)",
+      "Coordinate communication between the CPU and RAM"
+    ],
+    "answer": "Perform arithmetic operations (add, subtract) and logical operations (AND, OR, NOT)",
+    "hint": "The name itself describes what it does.",
+    "category": "CPU Components",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which type of CPU cache is the smallest and fastest, located directly on the processor core?",
+    "options": ["L3 Cache", "L2 Cache", "L1 Cache", "LLC (Last Level Cache)"],
+    "answer": "L1 Cache",
+    "hint": "Lower numbers mean closer to the core and faster access.",
+    "category": "CPU Components",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What does DDR stand for in DDR4 RAM?",
+    "options": ["Dual Data Rate", "Direct Data Read", "Dynamic Data Register", "Double Density RAM"],
+    "answer": "Dual Data Rate",
+    "hint": "This technology transfers data on both the rising and falling edge of the clock cycle.",
+    "category": "RAM Types",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which storage interface offers the highest transfer speeds for modern SSDs?",
+    "options": ["SATA III", "USB 3.0", "NVMe (PCIe)", "IDE"],
+    "answer": "NVMe (PCIe)",
+    "hint": "This interface bypasses older storage controller bottlenecks by connecting directly to the PCIe bus.",
+    "category": "Storage",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "In a RAID 1 configuration, how is data stored across two drives?",
+    "options": [
+      "Data is striped across both drives for faster read/write speeds",
+      "Data is identically mirrored on both drives for redundancy",
+      "Parity information is distributed across both drives",
+      "One drive stores data; the other stores only the file system metadata"
+    ],
+    "answer": "Data is identically mirrored on both drives for redundancy",
+    "hint": "RAID 1 sacrifices capacity for reliability — you only get the storage of one drive.",
+    "category": "Storage",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the role of the chipset on a motherboard?",
+    "options": [
+      "Execute application code on behalf of the CPU",
+      "Regulate and distribute power from the PSU to all components",
+      "Manage communication between the CPU, RAM, storage, and peripheral devices",
+      "Store the BIOS firmware permanently"
+    ],
+    "answer": "Manage communication between the CPU, RAM, storage, and peripheral devices",
+    "hint": "The chipset acts as the traffic controller for data moving between major components.",
+    "category": "Motherboard",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the key advantage of UEFI over traditional BIOS?",
+    "options": [
+      "UEFI uses less power during the boot process",
+      "UEFI supports drives larger than 2 TB, has a graphical interface, and supports Secure Boot",
+      "UEFI is stored on a physical chip that cannot be updated",
+      "UEFI boots the OS directly without a bootloader"
+    ],
+    "answer": "UEFI supports drives larger than 2 TB, has a graphical interface, and supports Secure Boot",
+    "hint": "BIOS is limited to MBR partition tables with a 2 TB disk size limit.",
+    "category": "BIOS vs UEFI",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What does POST stand for in the computer boot process, and when does it run?",
+    "options": [
+      "Power-On Self-Test — runs immediately when the computer is powered on",
+      "Pre-OS System Test — runs after the bootloader loads",
+      "Peripheral Output Startup Test — runs when new hardware is detected",
+      "Primary Operating System Transfer — runs when the OS hands off to a user session"
+    ],
+    "answer": "Power-On Self-Test — runs immediately when the computer is powered on",
+    "hint": "If POST finds a hardware problem, you may hear beep codes before the screen turns on.",
+    "category": "Boot Process",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which USB standard supports data transfer speeds up to 10 Gbps and is also known as USB 3.1 Gen 2?",
+    "options": ["USB 2.0", "USB 3.0 (USB 3.1 Gen 1)", "USB 3.1 Gen 2", "USB4"],
+    "answer": "USB 3.1 Gen 2",
+    "hint": "USB 3.0/3.1 Gen 1 maxes out at 5 Gbps; this doubles that.",
+    "category": "I/O Ports",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is a Type 1 hypervisor?",
+    "options": [
+      "A hypervisor that runs on top of a host operating system",
+      "A hypervisor that runs directly on the physical hardware without a host OS",
+      "A virtual machine that emulates a complete CPU architecture",
+      "Software that converts physical servers into container-based workloads"
+    ],
+    "answer": "A hypervisor that runs directly on the physical hardware without a host OS",
+    "hint": "VMware ESXi and Microsoft Hyper-V are Type 1 examples; VirtualBox is Type 2.",
+    "category": "Virtualization",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the purpose of thermal paste between a CPU and its heatsink?",
+    "options": [
+      "To electrically insulate the CPU from the heatsink",
+      "To bond the heatsink permanently to the CPU",
+      "To fill microscopic gaps and improve thermal conductivity between surfaces",
+      "To prevent condensation from forming on the CPU"
+    ],
+    "answer": "To fill microscopic gaps and improve thermal conductivity between surfaces",
+    "hint": "CPU and heatsink surfaces are not perfectly flat at a microscopic level.",
+    "category": "Cooling",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "An 80 PLUS Gold rated power supply is certified to operate at what minimum efficiency?",
+    "options": ["80%", "87%", "90%", "94%"],
+    "answer": "87%",
+    "hint": "80 PLUS ratings go: White (80%), Bronze (82%), Silver (85%), Gold (87%), Platinum (89%), Titanium (92%).",
+    "category": "Power Supply",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the difference between a VM (Virtual Machine) and a container?",
+    "options": [
+      "VMs share the host OS kernel; containers have their own full OS",
+      "Containers virtualize hardware; VMs virtualize only the application layer",
+      "VMs include a full OS per instance; containers share the host OS kernel and are more lightweight",
+      "There is no difference — both terms describe the same technology"
+    ],
+    "answer": "VMs include a full OS per instance; containers share the host OS kernel and are more lightweight",
+    "hint": "Docker uses containers; VMware uses VMs.",
+    "category": "Virtualization",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which RAID level requires a minimum of 3 drives and uses distributed parity to allow one drive to fail without data loss?",
+    "options": ["RAID 0", "RAID 1", "RAID 5", "RAID 10"],
+    "answer": "RAID 5",
+    "hint": "Parity is distributed across all drives so no single drive holds all the parity data.",
+    "category": "Storage",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the function of CPU registers?",
+    "options": [
+      "Long-term data storage that persists after power loss",
+      "Extremely fast, small storage locations inside the CPU that hold data currently being processed",
+      "Dedicated storage for the operating system kernel",
+      "Buffers that hold data being transferred between RAM and the hard drive"
+    ],
+    "answer": "Extremely fast, small storage locations inside the CPU that hold data currently being processed",
+    "hint": "Registers are the fastest type of storage in the memory hierarchy.",
+    "category": "CPU Components",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "NVMe SSDs are significantly faster than SATA SSDs because they connect directly to the PCIe bus instead of going through the SATA controller.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "SATA III maxes at ~600 MB/s; NVMe can exceed 7,000 MB/s.",
+    "category": "Storage",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "SODIMM RAM modules are the same physical size as DIMM modules and can be used interchangeably in desktop motherboards.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "SODIMM is a smaller form factor designed for laptops and compact devices.",
+    "category": "RAM Types",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "RAID 0 provides redundancy: if one drive fails, the data can be recovered from the remaining drive.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "RAID 0 stripes data across drives for performance, but there is zero redundancy — hence '0'.",
+    "category": "Storage",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "Liquid cooling systems are generally more effective at dissipating heat from a CPU than air cooling with a heatsink and fan.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "Water has a much higher thermal capacity than air, allowing it to carry away more heat.",
+    "category": "Cooling",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "Thunderbolt 4 ports use the USB-C physical connector and are backward-compatible with USB devices.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "Thunderbolt 4 standardized on the USB-C form factor starting with the Intel Tiger Lake generation.",
+    "category": "I/O Ports",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "short",
+    "question": "Explain the difference between a CPU's clock speed and its core count, and why both matter for performance.",
+    "answer": "Clock speed (measured in GHz) is how many cycles the CPU executes per second — higher speed means each core works faster. Core count is how many independent processing units the CPU has — more cores allow true parallel execution of multiple tasks. Single-threaded tasks benefit from higher clock speed; heavily multi-threaded workloads (video rendering, servers) benefit from more cores.",
+    "hint": "One measures speed per core; the other measures parallelism.",
+    "category": "CPU Components",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is the difference between volatile and non-volatile memory? Give an example of each.",
+    "answer": "Volatile memory loses its data when power is removed. Example: RAM (DRAM). Non-volatile memory retains data without power. Examples: SSD, HDD, ROM/EEPROM (BIOS chip). Volatile memory is generally much faster but temporary; non-volatile is slower but persistent.",
+    "hint": "Think about what happens when you turn off your computer.",
+    "category": "RAM Types",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is the role of the bootloader in the boot process?",
+    "answer": "The bootloader is a small program stored in the boot sector of a drive (or the EFI System Partition for UEFI systems) that is loaded by the BIOS/UEFI after POST. Its job is to locate the operating system kernel on the disk and load it into RAM to begin execution. Examples include GRUB (Linux) and Windows Boot Manager.",
+    "hint": "It is the bridge between firmware initialization and the OS starting up.",
+    "category": "Boot Process",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is PCIe, and why is it important for modern hardware components?",
+    "answer": "PCIe (Peripheral Component Interconnect Express) is a high-speed serial bus interface on motherboards used to connect expansion cards and devices directly to the CPU/chipset. It is important because it provides much higher bandwidth than older interfaces (like PCI or AGP), enabling fast GPUs, NVMe SSDs, network cards, and other high-performance peripherals.",
+    "hint": "GPUs and NVMe SSDs both rely on this interface.",
+    "category": "Motherboard",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "Explain what a hypervisor does and the difference between Type 1 and Type 2 hypervisors.",
+    "answer": "A hypervisor is software that creates and manages virtual machines by abstracting the physical hardware. A Type 1 (bare-metal) hypervisor runs directly on the hardware without a host OS (e.g., VMware ESXi, Hyper-V) and is used in enterprise/server environments for better performance. A Type 2 (hosted) hypervisor runs as an application on top of a host OS (e.g., VirtualBox, VMware Workstation) and is common for development and testing.",
+    "hint": "One runs on hardware directly; the other runs on an OS.",
+    "category": "Virtualization",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "order",
+    "question": "Order the steps of the computer boot process from power button press to OS desktop.",
+    "options": [
+      "Bootloader locates and loads the OS kernel",
+      "POST (Power-On Self-Test) runs hardware checks",
+      "OS initializes drivers and services, presents login/desktop",
+      "BIOS/UEFI firmware initializes and hands off to the bootloader"
+    ],
+    "answer": "POST (Power-On Self-Test) runs hardware checks|BIOS/UEFI firmware initializes and hands off to the bootloader|Bootloader locates and loads the OS kernel|OS initializes drivers and services, presents login/desktop",
+    "hint": "POST first, then firmware, then bootloader, then OS.",
+    "category": "Boot Process",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the memory hierarchy from fastest/smallest to slowest/largest.",
+    "options": [
+      "RAM (DRAM)",
+      "CPU Registers",
+      "Hard Disk Drive (HDD)",
+      "CPU Cache (L1/L2/L3)"
+    ],
+    "answer": "CPU Registers|CPU Cache (L1/L2/L3)|RAM (DRAM)|Hard Disk Drive (HDD)",
+    "hint": "Closer to the CPU core = faster but smaller capacity.",
+    "category": "CPU Components",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the RAID levels below from least redundancy to most redundancy.",
+    "options": [
+      "RAID 5 (distributed parity, 1 drive failure tolerance)",
+      "RAID 0 (striping, no redundancy)",
+      "RAID 10 (striped mirrors, up to 50% drive failure tolerance)",
+      "RAID 1 (mirroring, 1 drive failure tolerance)"
+    ],
+    "answer": "RAID 0 (striping, no redundancy)|RAID 5 (distributed parity, 1 drive failure tolerance)|RAID 1 (mirroring, 1 drive failure tolerance)|RAID 10 (striped mirrors, up to 50% drive failure tolerance)",
+    "hint": "Consider how many drive failures each level can survive.",
+    "category": "Storage",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "bingo_term",
+    "question": "Firmware stored on a chip on the motherboard that initializes hardware components and runs POST before handing control to the bootloader. Modern versions feature a graphical interface and support for Secure Boot and large storage drives.",
+    "answer": "UEFI",
+    "category": "BIOS vs UEFI",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "bingo_term",
+    "question": "A disk configuration technique that combines multiple physical drives into a single logical unit to improve performance, provide redundancy, or both.",
+    "answer": "RAID",
+    "category": "Storage",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  }
+]

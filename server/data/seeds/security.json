@@ -1,0 +1,383 @@
+[
+  {
+    "type": "mc",
+    "question": "Which pillar of the CIA Triad ensures that data is accessible to authorized users when they need it?",
+    "options": ["Confidentiality", "Integrity", "Availability", "Authentication"],
+    "answer": "Availability",
+    "hint": "A DDoS attack specifically targets this property.",
+    "category": "CIA Triad",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which type of authentication factor is a fingerprint scan?",
+    "options": ["Something you know", "Something you have", "Something you are", "Something you do"],
+    "answer": "Something you are",
+    "hint": "Biometrics fall into this authentication category.",
+    "category": "Authentication",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "In a SQL injection attack, what does the attacker insert into an input field?",
+    "options": [
+      "Malicious JavaScript code executed in the victim's browser",
+      "Malicious SQL code that manipulates the database query",
+      "A flood of network packets to overwhelm the server",
+      "A fake login page to steal credentials"
+    ],
+    "answer": "Malicious SQL code that manipulates the database query",
+    "hint": "Input fields that are not sanitized can pass attacker-supplied commands directly to the database.",
+    "category": "Attack Types",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the key difference between symmetric and asymmetric encryption?",
+    "options": [
+      "Symmetric encryption is slower; asymmetric encryption is faster",
+      "Symmetric encryption uses the same key for encryption and decryption; asymmetric uses a key pair (public and private)",
+      "Symmetric encryption uses two keys; asymmetric uses one key",
+      "Symmetric encryption cannot encrypt large files; asymmetric can"
+    ],
+    "answer": "Symmetric encryption uses the same key for encryption and decryption; asymmetric uses a key pair (public and private)",
+    "hint": "AES is symmetric; RSA is asymmetric.",
+    "category": "Encryption",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What does XSS (Cross-Site Scripting) allow an attacker to do?",
+    "options": [
+      "Intercept network traffic between a client and server",
+      "Inject malicious scripts into web pages viewed by other users",
+      "Overwhelm a server with traffic to deny legitimate access",
+      "Gain elevated privileges on the host operating system"
+    ],
+    "answer": "Inject malicious scripts into web pages viewed by other users",
+    "hint": "This attack targets the users of a web application, not the server itself.",
+    "category": "Attack Types",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which of the following best describes a Man-in-the-Middle (MitM) attack?",
+    "options": [
+      "An attacker sends millions of fake requests to crash a server",
+      "An attacker tricks a user into revealing credentials via a fake login page",
+      "An attacker secretly intercepts and potentially alters communication between two parties",
+      "An attacker encrypts the victim's files and demands a ransom"
+    ],
+    "answer": "An attacker secretly intercepts and potentially alters communication between two parties",
+    "hint": "HTTPS and proper certificate validation help defend against this attack.",
+    "category": "Attack Types",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the purpose of adding a 'salt' to a password before hashing it?",
+    "options": [
+      "To make the hash shorter and easier to store",
+      "To encrypt the hash with a secondary key",
+      "To prevent attackers from using precomputed hash tables (rainbow tables) to crack passwords",
+      "To allow the original password to be recovered from the hash"
+    ],
+    "answer": "To prevent attackers from using precomputed hash tables (rainbow tables) to crack passwords",
+    "hint": "A salt is a random value added to each password before hashing, making each hash unique even for identical passwords.",
+    "category": "Password Security",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the primary function of an Intrusion Detection System (IDS)?",
+    "options": [
+      "Actively block suspicious network traffic",
+      "Monitor network traffic and alert administrators when suspicious activity is detected",
+      "Assign IP addresses to devices on the network",
+      "Encrypt data transmitted across the network"
+    ],
+    "answer": "Monitor network traffic and alert administrators when suspicious activity is detected",
+    "hint": "An IDS detects but does not prevent — that is the job of an IPS.",
+    "category": "Firewalls, IDS, IPS",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which encryption algorithm is the current US government standard for symmetric encryption?",
+    "options": ["DES", "3DES", "RSA", "AES"],
+    "answer": "AES",
+    "hint": "This algorithm was adopted by NIST in 2001 and supports 128, 192, and 256-bit key sizes.",
+    "category": "Encryption",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "In Public Key Infrastructure (PKI), what is the role of a Certificate Authority (CA)?",
+    "options": [
+      "To encrypt all network traffic on a domain",
+      "To issue, sign, and revoke digital certificates that verify the identity of entities",
+      "To store private keys on behalf of users",
+      "To block unauthorized access to web servers"
+    ],
+    "answer": "To issue, sign, and revoke digital certificates that verify the identity of entities",
+    "hint": "When your browser shows a padlock, a CA has verified the site's certificate.",
+    "category": "PKI",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which hashing algorithm produces a 128-bit hash value and is now considered cryptographically broken?",
+    "options": ["SHA-256", "SHA-1", "MD5", "bcrypt"],
+    "answer": "MD5",
+    "hint": "Despite being broken, this algorithm is still sometimes used for checksums (not passwords).",
+    "category": "Hashing",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What does the Zero Trust security model assume?",
+    "options": [
+      "All traffic inside the corporate firewall is trusted",
+      "Users should trust devices that have passed antivirus scans",
+      "No user, device, or network segment should be trusted by default, even inside the perimeter",
+      "Only external traffic requires authentication"
+    ],
+    "answer": "No user, device, or network segment should be trusted by default, even inside the perimeter",
+    "hint": "The guiding principle is 'never trust, always verify'.",
+    "category": "Zero Trust",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Ransomware attacks typically end with which action by the attacker?",
+    "options": [
+      "Publishing stolen data on public websites",
+      "Encrypting the victim's files and demanding payment for the decryption key",
+      "Crashing the victim's server to cause a denial of service",
+      "Harvesting login credentials for later resale"
+    ],
+    "answer": "Encrypting the victim's files and demanding payment for the decryption key",
+    "hint": "WannaCry and NotPetya are well-known examples of this malware type.",
+    "category": "Attack Types",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which protocol does HTTPS use to provide encrypted communication over the web?",
+    "options": ["SSH", "IPSec", "TLS", "PGP"],
+    "answer": "TLS",
+    "hint": "TLS replaced the older SSL protocol; both provided the 'S' in HTTPS.",
+    "category": "HTTPS / TLS / SSL",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which OWASP Top 10 vulnerability occurs when an application includes user-supplied data in an OS command without proper sanitization?",
+    "options": ["Broken Access Control", "Injection", "Security Misconfiguration", "Cryptographic Failures"],
+    "answer": "Injection",
+    "hint": "SQL injection is the most common form, but OS command injection also falls in this category.",
+    "category": "OWASP Top 10",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "A VPN creates an encrypted tunnel between the client and the VPN server, protecting data from interception on untrusted networks.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "This is the core purpose of a VPN for remote workers on public Wi-Fi.",
+    "category": "VPNs",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "Hashing is a reversible process — given the hash output, you can always recover the original input.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "Hashing is a one-way function by design, which is why it is used for password storage.",
+    "category": "Hashing",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "Social engineering attacks exploit technical vulnerabilities in software to gain unauthorized access.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "Social engineering targets the human element — manipulating people, not software.",
+    "category": "Attack Types",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "An Intrusion Prevention System (IPS) can automatically block or drop malicious traffic, unlike an IDS which only alerts.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "The key difference is passive detection (IDS) versus active prevention (IPS).",
+    "category": "Firewalls, IDS, IPS",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "RSA is a symmetric encryption algorithm because it is widely used for encrypting bulk data.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "RSA uses a public/private key pair, which is the hallmark of asymmetric encryption.",
+    "category": "Encryption",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "short",
+    "question": "Explain the CIA Triad and give one real-world example of a threat to each component.",
+    "answer": "Confidentiality ensures data is only accessible to authorized users (threat: eavesdropping/data breach). Integrity ensures data is accurate and unaltered (threat: a MitM attack modifying data in transit). Availability ensures systems and data are accessible when needed (threat: a DDoS attack taking a service offline).",
+    "hint": "Each letter stands for a core security property.",
+    "category": "CIA Triad",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is the difference between authentication and authorization?",
+    "answer": "Authentication is the process of verifying who a user is (e.g., logging in with a username and password). Authorization is the process of determining what an authenticated user is allowed to do (e.g., whether they have permission to read a file or access an admin panel).",
+    "hint": "Authentication answers 'Who are you?' — authorization answers 'What can you do?'",
+    "category": "Authentication",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is phishing, and what is one technical control and one user-education control that can help prevent it?",
+    "answer": "Phishing is a social engineering attack where attackers impersonate trusted entities via email or fake websites to steal credentials or install malware. Technical controls include email filtering and multi-factor authentication. User-education controls include training employees to recognize suspicious links and verify sender addresses.",
+    "hint": "Phishing typically arrives via email and relies on deception.",
+    "category": "Attack Types",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "Why is MD5 no longer considered safe for storing passwords, and what should be used instead?",
+    "answer": "MD5 is fast to compute, making brute-force and rainbow table attacks practical. It also has known collision vulnerabilities. Modern password storage should use adaptive hashing algorithms such as bcrypt, scrypt, or Argon2, which are intentionally slow and incorporate salting.",
+    "hint": "Speed is a flaw in a password hashing algorithm.",
+    "category": "Hashing",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "Describe how asymmetric encryption is used when establishing a secure HTTPS connection.",
+    "answer": "During the TLS handshake, the server sends its public key (in its certificate). The client uses the public key to encrypt a session key (or contributes to a key exchange). Only the server can decrypt it using its private key. The resulting shared session key is then used for fast symmetric encryption for the rest of the session.",
+    "hint": "Asymmetric encryption is used to securely exchange a symmetric key.",
+    "category": "HTTPS / TLS / SSL",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "order",
+    "question": "Order the typical steps of a phishing attack from planning to exploitation.",
+    "options": [
+      "Attacker harvests credentials or installs malware",
+      "Attacker crafts a convincing fake email or website",
+      "Attacker identifies a target organization or individual",
+      "Victim clicks the malicious link and enters information"
+    ],
+    "answer": "Attacker identifies a target organization or individual|Attacker crafts a convincing fake email or website|Victim clicks the malicious link and enters information|Attacker harvests credentials or installs malware",
+    "hint": "Think: plan, build, deliver, exploit.",
+    "category": "Attack Types",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the steps of the TLS handshake when a browser connects to an HTTPS website.",
+    "options": [
+      "Client and server derive a shared session key",
+      "Server sends its certificate containing its public key",
+      "Client sends a 'ClientHello' with supported cipher suites",
+      "Encrypted application data is exchanged"
+    ],
+    "answer": "Client sends a 'ClientHello' with supported cipher suites|Server sends its certificate containing its public key|Client and server derive a shared session key|Encrypted application data is exchanged",
+    "hint": "Negotiate, verify, agree on keys, then communicate.",
+    "category": "HTTPS / TLS / SSL",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order these password security practices from least secure to most secure.",
+    "options": [
+      "Storing passwords as unsalted MD5 hashes",
+      "Storing passwords in plain text",
+      "Storing passwords using bcrypt with a unique salt per user",
+      "Storing passwords as salted SHA-256 hashes"
+    ],
+    "answer": "Storing passwords in plain text|Storing passwords as unsalted MD5 hashes|Storing passwords as salted SHA-256 hashes|Storing passwords using bcrypt with a unique salt per user",
+    "hint": "Plain text is worst; adaptive hashing with salts is best.",
+    "category": "Password Security",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "bingo_term",
+    "question": "An attack in which a threat actor overwhelms a target server or network with a massive flood of traffic from many distributed sources, making it unavailable to legitimate users.",
+    "answer": "DDoS",
+    "category": "Attack Types",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "bingo_term",
+    "question": "A security model that requires all users, whether inside or outside the network perimeter, to be continuously authenticated and authorized before being granted access to resources.",
+    "answer": "Zero Trust",
+    "category": "Zero Trust",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  }
+]
