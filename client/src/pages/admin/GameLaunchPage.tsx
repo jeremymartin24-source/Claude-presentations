@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminContext } from '../../context/AdminContext';
-import AdminNav from '../../components/admin/AdminNav';
+import { useAdminContext } from '../../context/AdminContext';
+import { AdminNav } from '../../components/admin/AdminNav';
 import { QRCodeDisplay } from '../../components/common/QRCodeDisplay';
 import { api } from '../../lib/api';
 import { motion } from 'framer-motion';
@@ -28,7 +28,7 @@ const EXAM_TYPES = [
 ];
 
 export default function GameLaunchPage() {
-  const { courses, fetchCourses } = useContext(AdminContext);
+  const { courses, fetchCourses } = useAdminContext();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedGame, setSelectedGame] = useState<any>(null);

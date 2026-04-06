@@ -1,12 +1,12 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminContext } from '../../context/AdminContext';
-import AdminNav from '../../components/admin/AdminNav';
-import StatsDashboard from '../../components/admin/StatsDashboard';
+import { useAdminContext } from '../../context/AdminContext';
+import { AdminNav } from '../../components/admin/AdminNav';
+import { StatsDashboard } from '../../components/admin/StatsDashboard';
 import { api } from '../../lib/api';
 
 export default function AdminDashboard() {
-  const { logout } = useContext(AdminContext);
+  const { logout } = useAdminContext();
   const navigate = useNavigate();
   const [stats, setStats] = useState<any>(null);
   const [recent, setRecent] = useState<any[]>([]);
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {stats && <StatsDashboard stats={stats} />}
+        {stats && <StatsDashboard />}
 
         {/* Recent Sessions */}
         <div className="mt-8">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import AdminNav from '../../components/admin/AdminNav';
+import { AdminNav } from '../../components/admin/AdminNav';
 import { api } from '../../lib/api';
 
 const GAME_ICONS: Record<string, string> = {

@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useContext } from 'react';
-import { AdminContext } from '../context/AdminContext';
+import { useAdminContext } from '../context/AdminContext';
 
 // Pages
 import Landing from '../pages/Landing';
@@ -34,7 +33,7 @@ import HotSeatHostView from '../pages/games/HotSeatHostView';
 import CodeBreakerHostView from '../pages/games/CodeBreakerHostView';
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useContext(AdminContext);
+  const { isAuthenticated } = useAdminContext();
   if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
   return <>{children}</>;
 }

@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminContext } from '../../context/AdminContext';
-import AdminNav from '../../components/admin/AdminNav';
+import { useAdminContext } from '../../context/AdminContext';
+import { AdminNav } from '../../components/admin/AdminNav';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CoursesPage() {
-  const { courses, fetchCourses, createCourse, updateCourse, deleteCourse } = useContext(AdminContext);
+  const { courses, fetchCourses, createCourse, updateCourse, deleteCourse } = useAdminContext();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<any>(null);

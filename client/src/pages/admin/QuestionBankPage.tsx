@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { AdminContext } from '../../context/AdminContext';
-import AdminNav from '../../components/admin/AdminNav';
-import QuestionEditor from '../../components/admin/QuestionEditor';
+import { useAdminContext } from '../../context/AdminContext';
+import { AdminNav } from '../../components/admin/AdminNav';
+import { QuestionEditor } from '../../components/admin/QuestionEditor';
 import { api } from '../../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,7 +12,7 @@ const EXAM_LABELS: Record<string, string> = { general: '📘 General', midterm: 
 export default function QuestionBankPage() {
   const [searchParams] = useSearchParams();
   const courseId = searchParams.get('course');
-  const { courses, fetchCourses } = useContext(AdminContext);
+  const { courses, fetchCourses } = useAdminContext();
   const [selectedCourse, setSelectedCourse] = useState<number | null>(courseId ? Number(courseId) : null);
   const [banks, setBanks] = useState<any[]>([]);
   const [selectedBank, setSelectedBank] = useState<any>(null);

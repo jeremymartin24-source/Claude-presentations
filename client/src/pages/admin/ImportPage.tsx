@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState, useRef } from 'react';
-import { AdminContext } from '../../context/AdminContext';
-import AdminNav from '../../components/admin/AdminNav';
+import { useEffect, useState, useRef } from 'react';
+import { useAdminContext } from '../../context/AdminContext';
+import { AdminNav } from '../../components/admin/AdminNav';
 import { api } from '../../lib/api';
 
 export default function ImportPage() {
-  const { courses, fetchCourses } = useContext(AdminContext);
+  const { courses, fetchCourses } = useAdminContext();
   const [activeTab, setActiveTab] = useState<'csv' | 'json'>('csv');
   const [selectedCourse, setSelectedCourse] = useState('');
   const [banks, setBanks] = useState<any[]>([]);

@@ -1,13 +1,13 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminContext } from '../../context/AdminContext';
+import { useAdminContext } from '../../context/AdminContext';
 import { motion } from 'framer-motion';
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useContext(AdminContext);
+  const { login } = useAdminContext();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
