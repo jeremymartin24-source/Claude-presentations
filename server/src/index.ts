@@ -2,7 +2,18 @@ import 'dotenv/config';
 import http from 'http';
 import os from 'os';
 import path from 'path';
+import fs from 'fs';
 import express from 'express';
+
+// Catch crashes so Railway deploy logs show the real error
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] Uncaught Exception:', err);
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[FATAL] Unhandled Rejection:', reason);
+  process.exit(1);
+});
 import cors from 'cors';
 import helmet from 'helmet';
 import { Server } from 'socket.io';
@@ -33,14 +44,17 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', app: 'UNOH Review Games', professor: 'Professor Martin' });
 });
 
-// In production: serve the built React app from client/dist
-if (NODE_ENV === 'production') {
-  const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
+// Serve the built React app if client/dist exists (always, not just in production)
+const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
+if (fs.existsSync(clientDist)) {
   app.use(express.static(clientDist));
   // SPA fallback — send index.html for any non-API route
-  app.get('*', (req, res) => {
+  app.get('*', (_req, res) => {
     res.sendFile(path.join(clientDist, 'index.html'));
   });
+  console.log(`[INFO] Serving static files from: ${clientDist}`);
+} else {
+  console.warn(`[WARN] client/dist not found at ${clientDist} — static serving disabled`);
 }
 
 // Error handler

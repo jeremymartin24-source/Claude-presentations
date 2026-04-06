@@ -1,11 +1,17 @@
 [phases.setup]
 nixPkgs = ['python3', 'gcc', 'gnumake']
 
+[phases.install]
+cmds = [
+  'cd client && npm install',
+  'cd server && npm install --include=dev --build-from-source'
+]
+
 [phases.build]
 cmds = [
-  'cd client && npm install && npm run build',
-  'cd server && npm install --build-from-source'
+  'cd client && npm run build',
+  'cd server && npm run build'
 ]
 
 [start]
-cmd = 'cd server && npm start'
+cmd = 'cd server && node dist/index.js'

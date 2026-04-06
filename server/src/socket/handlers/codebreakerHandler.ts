@@ -29,7 +29,7 @@ export function registerCodeBreakerHandlers(io: Server, socket: Socket) {
     const room = getRoom(pin);
     if (!room || room.phase !== 'question') return;
 
-    const question = room.settings.currentQ;
+    const question = room.settings.currentQ as any;
     if (!question) return;
 
     const correct = answer.toLowerCase().trim() === question.answer.toLowerCase().trim();

@@ -12,17 +12,17 @@ export function registerHotSeatHandlers(io: Server, socket: Socket) {
   socket.on('hotseat:submit_question', ({ pin, playerName, question }: { pin: string; playerName: string; question: string }) => {
     const room = getRoom(pin);
     if (!room) return;
-    if (!room.settings.questionQueue) room.settings.questionQueue = [];
+    if (!(room.settings as any).questionQueue) (room.settings as any).questionQueue = [];
     const qItem = { id: Date.now(), askedBy: playerName, question };
-    room.settings.questionQueue.push(qItem);
+    (room.settings as any).questionQueue.push(qItem);
     // Send updated queue to host only
-    io.to(room.hostSocketId).emit('hotseat:queue_updated', { queue: room.settings.questionQueue });
+    io.to(room.hostSocketId).emit('hotseat:queue_updated', { queue: (room.settings as any).questionQueue });
   });
 
   socket.on('hotseat:ask_question', ({ pin, questionId }: { pin: string; questionId: number }) => {
     const room = getRoom(pin);
     if (!room || room.hostSocketId !== socket.id) return;
-    const q = room.settings.questionQueue?.find((item: any) => item.id === questionId);
+    const q = (room.settings as any).questionQueue?.find((item: any) => item.id === questionId);
     if (q) {
       room.settings.currentQuestion = q;
       io.to(pin).emit('hotseat:question_asked', { question: q.question, askedBy: q.askedBy });

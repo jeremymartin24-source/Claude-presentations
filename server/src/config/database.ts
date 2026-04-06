@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import Database, { Database as DatabaseType } from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { DB_PATH } from './env';
@@ -17,7 +17,7 @@ if (!fs.existsSync(dataDir)) {
 }
 
 // Create/open the SQLite database
-export const db = new Database(resolvedDbPath);
+export const db: DatabaseType = new Database(resolvedDbPath);
 
 // Enable WAL mode for better concurrent read performance
 db.pragma('journal_mode = WAL');

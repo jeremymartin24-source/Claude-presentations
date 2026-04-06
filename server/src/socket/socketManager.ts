@@ -7,7 +7,7 @@ import {
 } from './gameRooms';
 import { registerJeopardyHandlers } from './handlers/jeopardyHandler';
 import { registerKahootHandlers } from './handlers/kahootHandler';
-import { registerSpeedRoundHandlers } from './handlers/speedroundHandler';
+import { registerSpeedroundHandlers as registerSpeedRoundHandlers } from './handlers/speedroundHandler';
 import { registerBattleRoyaleHandlers } from './handlers/battleroyaleHandler';
 import { registerMillionaireHandlers } from './handlers/millionaireHandler';
 import { registerWagerHandlers } from './handlers/wagerHandler';

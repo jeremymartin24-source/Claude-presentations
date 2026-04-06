@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { db } from '../config/database';
 import { requireAdmin } from '../middleware/auth';
-import { parseCSV } from '../services/csvService';
+import { parseCsvQuestions as parseCSV } from '../services/csvService';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
