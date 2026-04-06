@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #000000;
+  color: #ffffff;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.unoh-gradient {
+  background: linear-gradient(135deg, #680001 0%, #000000 100%);
+}
+
+.game-card {
+  @apply bg-gray-900 border border-unoh-red rounded-xl p-6 shadow-lg;
+}
+
+.btn-primary {
+  @apply bg-unoh-red hover:bg-unoh-red-dark text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 active:scale-95;
+}
+
+.btn-secondary {
+  @apply bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg border border-gray-600 transition-all;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #680001;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8a0001;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid #680001;
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: #680001;
+  color: #fff;
+}
+
+/* Prevent zoom on input focus on iOS */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
