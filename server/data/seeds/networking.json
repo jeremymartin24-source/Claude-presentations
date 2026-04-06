@@ -1,0 +1,354 @@
+[
+  {
+    "type": "mc",
+    "question": "Which layer of the OSI model is responsible for logical addressing and routing packets between networks?",
+    "options": ["Data Link Layer", "Transport Layer", "Network Layer", "Session Layer"],
+    "answer": "Network Layer",
+    "hint": "IP addresses operate at this layer.",
+    "category": "OSI Model",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the primary difference between a hub and a switch?",
+    "options": [
+      "A hub routes packets between networks; a switch does not",
+      "A hub broadcasts data to all ports; a switch forwards data only to the intended destination port",
+      "A hub operates at Layer 3; a switch operates at Layer 2",
+      "A hub uses IP addresses; a switch uses MAC addresses"
+    ],
+    "answer": "A hub broadcasts data to all ports; a switch forwards data only to the intended destination port",
+    "hint": "Think about how each device handles collision domains.",
+    "category": "Network Devices",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which protocol automatically assigns IP addresses to devices on a network?",
+    "options": ["DNS", "DHCP", "FTP", "SMTP"],
+    "answer": "DHCP",
+    "hint": "Its name contains the word 'Dynamic'.",
+    "category": "Protocols",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "How many bits are in an IPv4 address?",
+    "options": ["16", "32", "64", "128"],
+    "answer": "32",
+    "hint": "IPv4 addresses are written as four groups of decimal numbers separated by dots.",
+    "category": "IP Addressing",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which transport layer protocol provides reliable, connection-oriented communication?",
+    "options": ["UDP", "IP", "TCP", "ICMP"],
+    "answer": "TCP",
+    "hint": "This protocol uses a three-way handshake to establish connections.",
+    "category": "TCP vs UDP",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the default port number for HTTPS?",
+    "options": ["21", "80", "443", "22"],
+    "answer": "443",
+    "hint": "HTTP uses port 80; its secure counterpart uses a different number.",
+    "category": "Protocols",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What does DNS stand for, and what is its primary function?",
+    "options": [
+      "Dynamic Network Service — assigns IP addresses automatically",
+      "Domain Name System — translates domain names to IP addresses",
+      "Data Network Switch — routes packets between subnets",
+      "Distributed Node Service — synchronizes clocks across networks"
+    ],
+    "answer": "Domain Name System — translates domain names to IP addresses",
+    "hint": "Think of it as the internet's phone book.",
+    "category": "Protocols",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which network topology connects every device directly to every other device, providing maximum redundancy?",
+    "options": ["Star", "Bus", "Ring", "Mesh"],
+    "answer": "Mesh",
+    "hint": "This topology is expensive to implement but eliminates single points of failure.",
+    "category": "Network Topologies",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the subnet mask for a /24 network in dotted-decimal notation?",
+    "options": ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.255.128"],
+    "answer": "255.255.255.0",
+    "hint": "Count the number of 1-bits: 24 ones means three full octets are 255.",
+    "category": "IP Addressing",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which OSI layer is responsible for establishing, managing, and terminating sessions between applications?",
+    "options": ["Layer 4 — Transport", "Layer 5 — Session", "Layer 6 — Presentation", "Layer 7 — Application"],
+    "answer": "Layer 5 — Session",
+    "hint": "This layer sits between the Transport and Presentation layers.",
+    "category": "OSI Model",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What is the length of an IPv6 address?",
+    "options": ["32 bits", "64 bits", "96 bits", "128 bits"],
+    "answer": "128 bits",
+    "hint": "IPv6 addresses are written as eight groups of four hexadecimal digits.",
+    "category": "IP Addressing",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "What technology allows a single public IP address to be shared by multiple private IP addresses on a LAN?",
+    "options": ["VLAN", "VPN", "NAT", "DNS"],
+    "answer": "NAT",
+    "hint": "Home routers use this to let all your devices access the internet through one ISP-assigned address.",
+    "category": "NAT",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which protocol is used to transfer files securely over an encrypted channel and operates on port 22?",
+    "options": ["FTP", "SFTP", "SMTP", "TFTP"],
+    "answer": "SFTP",
+    "hint": "This protocol piggybacks on SSH rather than using the plain FTP protocol.",
+    "category": "Protocols",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "A VLAN is used primarily to:",
+    "options": [
+      "Increase the physical speed of a network link",
+      "Logically segment a network into separate broadcast domains without requiring additional physical switches",
+      "Translate private IP addresses to public IP addresses",
+      "Assign IP addresses dynamically to hosts"
+    ],
+    "answer": "Logically segment a network into separate broadcast domains without requiring additional physical switches",
+    "hint": "VLANs work at Layer 2 and are configured on managed switches.",
+    "category": "VLANs",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "mc",
+    "question": "Which of the following best describes latency in a network context?",
+    "options": [
+      "The maximum data transfer rate of a link",
+      "The number of packets lost during transmission",
+      "The time it takes for a packet to travel from source to destination",
+      "The total amount of data transferred per second"
+    ],
+    "answer": "The time it takes for a packet to travel from source to destination",
+    "hint": "Ping measures this value in milliseconds.",
+    "category": "Bandwidth and Performance",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "UDP is a connection-oriented protocol that guarantees delivery of packets.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "UDP sacrifices reliability for speed — it sends data without establishing a connection first.",
+    "category": "TCP vs UDP",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "A MAC address is a hardware address assigned to a network interface card and operates at OSI Layer 2.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "MAC stands for Media Access Control.",
+    "category": "MAC Addresses",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "The IP address 192.168.1.50 is a publicly routable address on the internet.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "The 192.168.x.x range is reserved for private use per RFC 1918.",
+    "category": "IP Addressing",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "A firewall can filter network traffic based on IP addresses, port numbers, and protocols.",
+    "options": ["True", "False"],
+    "answer": "True",
+    "hint": "This is the core function of a packet-filtering firewall.",
+    "category": "Network Devices",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "tf",
+    "question": "The TCP/IP model has seven distinct layers, just like the OSI model.",
+    "options": ["True", "False"],
+    "answer": "False",
+    "hint": "The TCP/IP model condenses the OSI model into four layers.",
+    "category": "TCP/IP Model",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "short",
+    "question": "What OSI layer does a router operate at, and why?",
+    "answer": "Layer 3 (Network Layer), because routers use IP addresses to make forwarding decisions and route packets between different networks.",
+    "hint": "Routers work with logical addressing, not physical addressing.",
+    "category": "OSI Model",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is the difference between bandwidth and throughput?",
+    "answer": "Bandwidth is the theoretical maximum capacity of a network link; throughput is the actual amount of data successfully transferred per unit of time, which is typically less than bandwidth due to overhead, congestion, and errors.",
+    "hint": "Think of bandwidth as the speed limit on a highway and throughput as your actual average speed.",
+    "category": "Bandwidth and Performance",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "Explain what a three-way handshake is and which protocol uses it.",
+    "answer": "TCP uses a three-way handshake to establish a connection. The client sends a SYN packet, the server responds with SYN-ACK, and the client sends an ACK to confirm the connection is established.",
+    "hint": "The three messages are SYN, SYN-ACK, and ACK.",
+    "category": "TCP vs UDP",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is the purpose of the OSI Presentation Layer (Layer 6)?",
+    "answer": "The Presentation Layer is responsible for data translation, encryption/decryption, and compression. It ensures that data sent by one application can be read by another by handling format conversion (e.g., ASCII to EBCDIC, JPEG encoding).",
+    "hint": "This layer translates data between the application and lower layers.",
+    "category": "OSI Model",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "short",
+    "question": "What is the difference between a Class A, Class B, and Class C IPv4 address range?",
+    "answer": "Class A addresses range from 1.0.0.0 to 126.255.255.255 (default /8 mask, large networks). Class B ranges from 128.0.0.0 to 191.255.255.255 (default /16 mask, medium networks). Class C ranges from 192.0.0.0 to 223.255.255.255 (default /24 mask, small networks).",
+    "hint": "The first octet value determines the class.",
+    "category": "IP Addressing",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 60
+  },
+  {
+    "type": "order",
+    "question": "Order the OSI model layers from Layer 1 (bottom) to Layer 7 (top).",
+    "options": ["Session", "Network", "Physical", "Application", "Data Link", "Presentation", "Transport"],
+    "answer": "Physical|Data Link|Network|Transport|Session|Presentation|Application",
+    "hint": "Remember the mnemonic: 'Please Do Not Throw Sausage Pizza Away'.",
+    "category": "OSI Model",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the steps of the DNS resolution process when a user types a URL into a browser.",
+    "options": [
+      "Browser sends query to Recursive Resolver",
+      "Browser checks local DNS cache",
+      "Resolver queries Root Name Server",
+      "Resolver queries TLD Name Server",
+      "Resolver queries Authoritative Name Server and returns IP to client"
+    ],
+    "answer": "Browser checks local DNS cache|Browser sends query to Recursive Resolver|Resolver queries Root Name Server|Resolver queries TLD Name Server|Resolver queries Authoritative Name Server and returns IP to client",
+    "hint": "Resolution starts locally and works outward through the DNS hierarchy.",
+    "category": "Protocols",
+    "difficulty": "hard",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "order",
+    "question": "Order the TCP three-way handshake steps followed by data transfer initiation.",
+    "options": [
+      "Client sends SYN",
+      "Data transmission begins",
+      "Client sends ACK",
+      "Server sends SYN-ACK"
+    ],
+    "answer": "Client sends SYN|Server sends SYN-ACK|Client sends ACK|Data transmission begins",
+    "hint": "SYN means synchronize; ACK means acknowledge.",
+    "category": "TCP vs UDP",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 45
+  },
+  {
+    "type": "bingo_term",
+    "question": "A logical subdivision of an IP network that groups devices sharing the same network prefix, used to organize and isolate traffic within a larger network.",
+    "answer": "Subnet",
+    "category": "IP Addressing",
+    "difficulty": "medium",
+    "points": 100,
+    "time_limit": 30
+  },
+  {
+    "type": "bingo_term",
+    "question": "A network device that operates at OSI Layer 3, reads IP headers, and forwards packets between different networks based on routing tables.",
+    "answer": "Router",
+    "category": "Network Devices",
+    "difficulty": "easy",
+    "points": 100,
+    "time_limit": 30
+  }
+]
