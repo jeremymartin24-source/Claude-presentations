@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Gauntlet — UNOH</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     SCREEN 1 — HOME
+     ============================================================ -->
+<div id="screen-home" class="screen active">
+
+  <header class="app-header">
+    <!-- Logo: drop logo.png in the project folder. The <img> shows it; the
+         placeholder div shows when the image is missing. Both are here so
+         you only need to add the file — no code change required. -->
+    <img id="header-logo-img" class="header-logo" src="logo.png" alt="UNOH Logo"
+         onerror="this.style.display='none'; document.getElementById('logo-placeholder').style.display='flex';">
+    <div id="logo-placeholder" class="header-logo-placeholder" style="display:none;">UNOH<br>LOGO</div>
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <h1>NETWORK GAUNTLET</h1>
+      <div class="tagline">University of Northwestern Ohio — IT260 Review</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <div class="home-hero">
+      <h2>NETWORK GAUNTLET</h2>
+      <p>Instructor-led review game &nbsp;·&nbsp; Network+ Style Questions</p>
+    </div>
+
+    <div class="team-setup">
+      <div class="team-card">
+        <label for="team1-input">Team 1 Name</label>
+        <input type="text" id="team1-input" maxlength="24" placeholder="Team Alpha" value="Team Alpha">
+      </div>
+      <div class="team-card">
+        <label for="team2-input">Team 2 Name</label>
+        <input type="text" id="team2-input" maxlength="24" placeholder="Team Bravo" value="Team Bravo">
+      </div>
+    </div>
+
+    <div class="home-actions">
+      <button class="btn btn-primary btn-large" onclick="startGame()">
+        &#9654; Start Game
+      </button>
+      <button class="btn btn-outline" onclick="resetGame()">
+        &#8635; Reset Scores
+      </button>
+    </div>
+
+  </div>
+</div><!-- /screen-home -->
+
+
+<!-- ============================================================
+     SCREEN 2 — ROUND MENU
+     ============================================================ -->
+<div id="screen-menu" class="screen">
+
+  <header class="app-header">
+    <img class="header-logo" src="logo.png" alt="UNOH Logo"
+         onerror="this.style.display='none'">
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <h1>NETWORK GAUNTLET</h1>
+      <div class="tagline">Select a Round</div>
+    </div>
+  </header>
+
+  <!-- Persistent scoreboard — updated by JS -->
+  <div class="scoreboard-bar">
+    <div class="score-team">
+      <div class="score-name" id="menu-team1-name">Team Alpha</div>
+      <div class="score-value" id="menu-team1-score">0</div>
+    </div>
+    <div class="score-separator">vs</div>
+    <div class="score-team">
+      <div class="score-name" id="menu-team2-name">Team Bravo</div>
+      <div class="score-value" id="menu-team2-score">0</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="menu-header">
+      <h2>Choose a Round</h2>
+      <p>Click any round to begin. You can return here between questions.</p>
+    </div>
+
+    <div class="round-grid">
+
+      <div class="round-card" onclick="startRound('portBlitz')">
+        <div class="round-number">Round 1</div>
+        <div class="round-name">Port Blitz</div>
+        <div class="round-desc">Rapid-fire port and protocol identification. Instructor reveals answers manually.</div>
+        <div class="round-meta">
+          <span class="badge badge-gray">15 Questions</span>
+          <span class="badge badge-red">1 pt each</span>
+          <span class="badge badge-gray">Reveal-style</span>
+        </div>
+      </div>
+
+      <div class="round-card" onclick="startRound('conceptSniper')">
+        <div class="round-number">Round 2</div>
+        <div class="round-name">Concept Sniper</div>
+        <div class="round-desc">Short concept and definition questions. Multiple choice and reveal formats.</div>
+        <div class="round-meta">
+          <span class="badge badge-gray">10 Questions</span>
+          <span class="badge badge-red">2 pts each</span>
+          <span class="badge badge-gray">Mixed</span>
+        </div>
+      </div>
+
+      <div class="round-card" onclick="startRound('scenarioStrike')">
+        <div class="round-number">Round 3</div>
+        <div class="round-name">Scenario Strike</div>
+        <div class="round-desc">Network+ style scenario questions with detailed explanations.</div>
+        <div class="round-meta">
+          <span class="badge badge-gray">6 Questions</span>
+          <span class="badge badge-red">3 pts each</span>
+          <span class="badge badge-gray">Multiple Choice</span>
+        </div>
+      </div>
+
+      <div class="round-card" onclick="startRound('trapOrTruth')">
+        <div class="round-number">Round 4</div>
+        <div class="round-name">Trap or Truth</div>
+        <div class="round-desc">True/false misconception questions. Common exam traps revealed.</div>
+        <div class="round-meta">
+          <span class="badge badge-gray">8 Questions</span>
+          <span class="badge badge-red">2 pts each</span>
+          <span class="badge badge-gray">True / False</span>
+        </div>
+      </div>
+
+      <div class="round-card" onclick="startRound('finalBoss')">
+        <div class="round-number">Round 5</div>
+        <div class="round-name">Final Boss</div>
+        <div class="round-desc">High-difficulty scenarios requiring synthesis of multiple concepts.</div>
+        <div class="round-meta">
+          <span class="badge badge-gray">5 Questions</span>
+          <span class="badge badge-red">5 pts each</span>
+          <span class="badge badge-gray">Multiple Choice</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="menu-footer">
+      <button class="btn btn-secondary" onclick="showScreen('screen-home')">&#8592; Edit Teams</button>
+      <button class="btn btn-outline" onclick="resetGame()">&#8635; Reset Game</button>
+      <button class="btn btn-primary" onclick="showScreen('screen-winner')">&#127942; View Final Scores</button>
+    </div>
+
+  </div>
+</div><!-- /screen-menu -->
+
+
+<!-- ============================================================
+     SCREEN 3 — QUESTION
+     ============================================================ -->
+<div id="screen-question" class="screen">
+
+  <header class="app-header">
+    <img class="header-logo" src="logo.png" alt="UNOH Logo"
+         onerror="this.style.display='none'">
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <h1>NETWORK GAUNTLET</h1>
+      <div class="tagline" id="q-header-round">Round</div>
+    </div>
+  </header>
+
+  <!-- Scoreboard -->
+  <div class="scoreboard-bar">
+    <div class="score-team">
+      <div class="score-name" id="q-team1-name">Team Alpha</div>
+      <div class="score-value" id="q-team1-score">0</div>
+    </div>
+    <div class="score-separator">vs</div>
+    <div class="score-team">
+      <div class="score-name" id="q-team2-name">Team Bravo</div>
+      <div class="score-value" id="q-team2-score">0</div>
+    </div>
+  </div>
+
+  <div class="question-screen-body">
+    <div class="question-area">
+
+      <!-- Round label + counter -->
+      <div class="q-meta-row">
+        <div class="q-round-label" id="q-round-label">Port Blitz</div>
+        <div class="q-counter" id="q-counter">Question 1 of 15</div>
+      </div>
+
+      <!-- Question card -->
+      <div class="question-card">
+        <div class="question-points-label" id="q-points-label">1 POINT</div>
+        <div class="question-prompt" id="q-prompt">Loading question...</div>
+      </div>
+
+      <!-- Multiple choice answers (shown when question has choices) -->
+      <div id="choices-area" class="choices-grid" style="display:none;"></div>
+
+      <!-- True/False buttons (shown for Trap or Truth) -->
+      <div id="tf-area" class="tf-row" style="display:none;">
+        <button class="tf-btn" id="tf-true"  onclick="selectTF('TRUE')">TRUE</button>
+        <button class="tf-btn" id="tf-false" onclick="selectTF('FALSE')">FALSE</button>
+      </div>
+
+      <!-- Reveal button (shown for reveal-only questions) -->
+      <div id="reveal-area" class="reveal-section" style="display:none;">
+        <button class="btn btn-primary btn-large" onclick="revealAnswer()">
+          &#9654; Reveal Answer
+        </button>
+      </div>
+
+      <!-- Answer reveal box (hidden until revealed) -->
+      <div id="answer-box" class="answer-box">
+        <div class="answer-box-label">&#10003; Correct Answer</div>
+        <div class="answer-box-text" id="answer-box-text"></div>
+        <div class="answer-box-explanation" id="answer-box-explanation"></div>
+      </div>
+
+      <!-- Timer (hidden by default; toggle via nav bar) -->
+      <div id="timer-section" class="timer-section hidden">
+        <div class="timer-label">Timer</div>
+        <div class="timer-display" id="timer-display">0:30</div>
+        <div class="timer-controls">
+          <button class="btn btn-success btn-small" onclick="timerStartPause()" id="timer-start-btn">&#9654; Start</button>
+          <button class="btn btn-secondary btn-small" onclick="timerReset()">&#8635; Reset</button>
+        </div>
+        <label class="timer-input-label">
+          Sec:
+          <input type="number" id="timer-input" class="timer-input" value="30" min="5" max="300"
+                 onchange="timerSetDefault(this.value)">
+        </label>
+      </div>
+
+      <!-- Scoring panel -->
+      <div class="scoring-panel">
+
+        <div class="team-score-block" id="score-block-0">
+          <div class="team-score-block-name" id="score-name-0">Team Alpha</div>
+          <div class="team-score-block-value" id="score-val-0">0</div>
+          <div class="score-adj-row">
+            <button class="btn-minus" onclick="adjustScore(0, -1)" title="−1">−</button>
+            <span class="score-adj-label">Adjust</span>
+            <button class="btn-plus" onclick="adjustScore(0, 1)" title="+1">+</button>
+          </div>
+          <!-- Quick-add buttons based on current question's point value -->
+          <div class="score-quick-btns" id="quick-btns-0"></div>
+        </div>
+
+        <div class="team-score-block" id="score-block-1">
+          <div class="team-score-block-name" id="score-name-1">Team Bravo</div>
+          <div class="team-score-block-value" id="score-val-1">0</div>
+          <div class="score-adj-row">
+            <button class="btn-minus" onclick="adjustScore(1, -1)" title="−1">−</button>
+            <span class="score-adj-label">Adjust</span>
+            <button class="btn-plus" onclick="adjustScore(1, 1)" title="+1">+</button>
+          </div>
+          <div class="score-quick-btns" id="quick-btns-1"></div>
+        </div>
+
+      </div>
+
+    </div><!-- /question-area -->
+
+    <!-- Navigation bar (always visible at bottom) -->
+    <div class="nav-bar">
+      <div class="nav-left">
+        <button class="btn btn-secondary btn-icon" onclick="goBack()" title="Back to Round Menu">
+          &#8592; Menu
+        </button>
+        <button class="btn btn-secondary btn-icon" onclick="prevQuestion()" id="btn-prev" disabled>
+          &#9664; Prev
+        </button>
+      </div>
+      <div class="nav-center">
+        <button class="btn btn-outline btn-small" onclick="toggleTimer()" id="btn-timer-toggle">
+          &#9201; Timer
+        </button>
+      </div>
+      <div class="nav-right">
+        <button class="btn btn-primary btn-icon" onclick="nextQuestion()" id="btn-next">
+          Next &#9654;
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /question-screen-body -->
+
+</div><!-- /screen-question -->
+
+
+<!-- ============================================================
+     SCREEN 4 — WINNER / FINAL SCORES
+     ============================================================ -->
+<div id="screen-winner" class="screen">
+
+  <header class="app-header">
+    <img class="header-logo" src="logo.png" alt="UNOH Logo"
+         onerror="this.style.display='none'">
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <h1>NETWORK GAUNTLET</h1>
+      <div class="tagline">Final Results</div>
+    </div>
+  </header>
+
+  <div class="winner-body">
+    <div class="winner-content">
+
+      <div class="winner-trophy" id="winner-trophy">&#127942;</div>
+      <div class="winner-subtitle" id="winner-subtitle">Winner</div>
+      <div class="winner-team-name" id="winner-team-name">Team Alpha</div>
+      <div class="winner-score-line" id="winner-score-line">Final Score: 24 pts</div>
+
+      <div class="final-scores-row">
+        <div class="final-score-card" id="final-card-0">
+          <div class="final-card-name" id="final-name-0">Team Alpha</div>
+          <div class="final-card-score" id="final-score-0">0</div>
+        </div>
+        <div class="final-score-card" id="final-card-1">
+          <div class="final-card-name" id="final-name-1">Team Bravo</div>
+          <div class="final-card-score" id="final-score-1">0</div>
+        </div>
+      </div>
+
+      <div class="winner-actions">
+        <button class="btn btn-primary btn-large" onclick="showScreen('screen-menu')">
+          &#8592; Back to Rounds
+        </button>
+        <button class="btn btn-secondary" onclick="resetGame()">
+          &#8635; Play Again
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /screen-winner -->
+
+
+<script src="questions.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
