@@ -35,8 +35,12 @@ router.post('/create', requireAdmin, async (req: Request, res: Response) => {
     bankId: bank_id,
   });
 
-  const lanIP = getLanIP();
-  const joinUrl = `http://${lanIP}:3000/join?pin=${pin}`;
+  // In production use the public Railway URL, otherwise use LAN IP
+  const baseUrl = process.env.PUBLIC_URL
+    || (process.env.NODE_ENV === 'production'
+        ? 'https://claude-presentations-production.up.railway.app'
+        : `http://${getLanIP()}:3000`);
+  const joinUrl = `${baseUrl}/join?pin=${pin}`;
   const qrDataUrl = await QRCode.toDataURL(joinUrl, {
     color: { dark: '#680001', light: '#ffffff' },
     width: 300,
