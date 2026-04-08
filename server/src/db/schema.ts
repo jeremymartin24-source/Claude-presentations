@@ -1,6 +1,4 @@
-import Database from 'better-sqlite3';
-
-export function createTables(db: Database.Database): void {
+export function createTables(db: any): void {
   // ── Courses ─────────────────────────────────────────────────────────────────
   db.exec(`
     CREATE TABLE IF NOT EXISTS courses (

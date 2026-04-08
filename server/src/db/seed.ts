@@ -1,4 +1,3 @@
-import Database from 'better-sqlite3';
 import { logger } from '../utils/logger';
 
 interface CourseDefinition {
@@ -174,7 +173,7 @@ const COURSE_QUESTIONS: Record<string, () => QuestionDefinition[]> = {
 
 // ── Seed function ─────────────────────────────────────────────────────────────
 
-export function seedDatabase(db: Database.Database): void {
+export function seedDatabase(db: any): void {
   // Check if courses are already seeded
   const courseCount = (db.prepare('SELECT COUNT(*) as count FROM courses').get() as { count: number }).count;
   if (courseCount > 0) {

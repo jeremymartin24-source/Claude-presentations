@@ -1,4 +1,4 @@
-import Database, { Database as DatabaseType } from 'better-sqlite3';
+import Database from 'node-sqlite3-wasm';
 import path from 'path';
 import fs from 'fs';
 import { DB_PATH } from './env';
@@ -17,11 +17,11 @@ if (!fs.existsSync(dataDir)) {
 }
 
 // Create/open the SQLite database
-export const db: DatabaseType = new Database(resolvedDbPath);
+export const db = new Database(resolvedDbPath);
 
-// Enable WAL mode for better concurrent read performance
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+// node-sqlite3-wasm has no .pragma() — use exec() instead
+db.exec('PRAGMA journal_mode = WAL');
+db.exec('PRAGMA foreign_keys = ON');
 
 logger.info(`Database opened at: ${resolvedDbPath}`);
 

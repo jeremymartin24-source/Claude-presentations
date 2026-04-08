@@ -1,10 +1,8 @@
-import Database from 'better-sqlite3';
-
 /**
  * Create a new game session record and return its ID.
  */
 export function createSession(
-  db: Database.Database,
+  db: any,
   gameType: string,
   bankId: number | null,
   courseId: number | null,
@@ -22,7 +20,7 @@ export function createSession(
 /**
  * Mark a session as ended by setting ended_at and status.
  */
-export function endSession(db: Database.Database, sessionId: number): void {
+export function endSession(db: any, sessionId: number): void {
   db.prepare(`
     UPDATE game_sessions
     SET ended_at = CURRENT_TIMESTAMP, status = 'ended'
@@ -34,7 +32,7 @@ export function endSession(db: Database.Database, sessionId: number): void {
  * Save a player's final result for a session.
  */
 export function savePlayer(
-  db: Database.Database,
+  db: any,
   sessionId: number,
   name: string,
   team: string | null,
@@ -50,7 +48,7 @@ export function savePlayer(
  * Record a buzzer event (for Jeopardy / Speed Round etc).
  */
 export function saveBuzzerEvent(
-  db: Database.Database,
+  db: any,
   sessionId: number,
   playerName: string,
   questionId: number | null,
