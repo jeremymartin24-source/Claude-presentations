@@ -16,6 +16,19 @@ if (!fs.existsSync(dataDir)) {
   logger.info(`Created data directory: ${dataDir}`);
 }
 
+// node-sqlite3-wasm uses a .lock directory for file locking.
+// If the server was killed without a clean shutdown, this stale lock prevents restart.
+// Remove it automatically on every startup.
+const lockPath = `${resolvedDbPath}.lock`;
+if (fs.existsSync(lockPath)) {
+  try {
+    fs.rmSync(lockPath, { recursive: true, force: true });
+    logger.info(`Removed stale database lock: ${lockPath}`);
+  } catch {
+    // Non-fatal — proceed and let SQLite report the error if it's still locked
+  }
+}
+
 // Create/open the SQLite database
 export const db = new Database(resolvedDbPath);
 
