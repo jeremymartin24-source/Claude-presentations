@@ -1,4 +1,4 @@
-import Database from 'node-sqlite3-wasm';
+import { Database } from 'node-sqlite3-wasm';
 import path from 'path';
 import fs from 'fs';
 import { DB_PATH } from './env';
