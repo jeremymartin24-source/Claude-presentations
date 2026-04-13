@@ -4,8 +4,8 @@ import { requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
-// GET /api/settings
-router.get('/', (req: Request, res: Response) => {
+// GET /api/settings — protected so login verification actually validates the password
+router.get('/', requireAdmin, (req: Request, res: Response) => {
   const rows = db.prepare('SELECT key, value FROM settings').all() as { key: string; value: string }[];
   const settings: Record<string, string> = {};
   for (const row of rows) settings[row.key] = row.value;
