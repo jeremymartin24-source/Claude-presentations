@@ -1,3 +1,4 @@
+import ManualScorePanel from '../../components/games/ManualScorePanel';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getSocket } from '../../lib/socket';
@@ -315,6 +316,7 @@ export default function SpeedRoundHostView() {
           {sortedScores.length === 0 && <div className="text-gray-700 text-xs">No scores yet</div>}
         </div>
       )}
+      {(location.state as any)?.settings?.noJoin && <ManualScorePanel pin={(location.state as any)?.pin} />}
     </div>
   );
 }

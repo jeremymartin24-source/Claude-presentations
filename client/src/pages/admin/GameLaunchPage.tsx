@@ -36,7 +36,8 @@ export default function GameLaunchPage() {
   const [selectedExam, setSelectedExam] = useState('general');
   const [banks, setBanks] = useState<any[]>([]);
   const [selectedBank, setSelectedBank] = useState<any>(null);
-  const [settings, setSettings] = useState<any>({ teams: false, teamCount: 2, soundEnabled: true });
+  const [settings, setSettings] = useState<any>({ teams: false, teamCount: 2, soundEnabled: true, noJoin: false, virtualPlayers: [] });
+  const [playerNames, setPlayerNames] = useState('');
   const [launched, setLaunched] = useState<any>(null);
   const [launching, setLaunching] = useState(false);
 
@@ -213,6 +214,35 @@ export default function GameLaunchPage() {
                   <div className={`w-5 h-5 rounded-full bg-white mx-0.5 transition-transform ${settings.soundEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
                 </button>
               </div>
+
+              <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">
+                <div>
+                  <div className="text-white font-medium">No Devices Required</div>
+                  <div className="text-gray-500 text-sm">Pre-enter players/teams — score manually from the host view</div>
+                </div>
+                <button onClick={() => setSettings((s: any) => ({ ...s, noJoin: !s.noJoin }))}
+                  className={`w-12 h-6 rounded-full transition-colors ${settings.noJoin ? 'bg-unoh-red' : 'bg-gray-700'}`}>
+                  <div className={`w-5 h-5 rounded-full bg-white mx-0.5 transition-transform ${settings.noJoin ? 'translate-x-6' : 'translate-x-0'}`} />
+                </button>
+              </div>
+
+              {settings.noJoin && (
+                <div className="bg-gray-900 border border-gray-700 rounded-xl px-5 py-4 space-y-2">
+                  <label className="block text-gray-300 text-sm font-medium">Player / Team Names</label>
+                  <p className="text-gray-500 text-xs">One name per line. These are added to the game automatically.</p>
+                  <textarea
+                    rows={5}
+                    placeholder={'Team A\nTeam B\nTeam C\nAlice\nBob'}
+                    value={playerNames}
+                    onChange={e => {
+                      setPlayerNames(e.target.value);
+                      const names = e.target.value.split('\n').map(s => s.trim()).filter(Boolean);
+                      setSettings((s: any) => ({ ...s, virtualPlayers: names }));
+                    }}
+                    className="w-full bg-black border border-gray-700 rounded-lg px-3 py-2 text-white text-sm font-mono resize-none focus:outline-none focus:border-unoh-red"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-4">

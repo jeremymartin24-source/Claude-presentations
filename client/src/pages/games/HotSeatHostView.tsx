@@ -1,3 +1,4 @@
+import ManualScorePanel from '../../components/games/ManualScorePanel';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getSocket } from '../../lib/socket';
@@ -368,6 +369,7 @@ export default function HotSeatHostView() {
           </motion.div>
         )}
       </AnimatePresence>
+      {(location.state as any)?.settings?.noJoin && <ManualScorePanel pin={(location.state as any)?.pin} />}
     </div>
   );
 }

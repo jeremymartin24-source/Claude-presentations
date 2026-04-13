@@ -1,3 +1,4 @@
+import ManualScorePanel from '../../components/games/ManualScorePanel';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getSocket } from '../../lib/socket';
@@ -183,7 +184,7 @@ export default function KahootHostView() {
 
               <button
                 onClick={handleStart}
-                disabled={players.length === 0}
+                disabled={players.length === 0 && !settings?.noJoin}
                 className="px-12 py-5 text-2xl font-black rounded-2xl text-white transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: '#680001' }}
               >
@@ -387,6 +388,7 @@ export default function KahootHostView() {
           )}
         </AnimatePresence>
       </div>
+      {(location.state as any)?.settings?.noJoin && <ManualScorePanel pin={(location.state as any)?.pin} />}
     </div>
   );
 }

@@ -37,7 +37,40 @@ export function registerSocketHandlers(io: Server) {
 
       const room = createRoom(pin, gameType, socket.id, questions, settings || {});
       socket.join(pin);
-      socket.emit('room_created', { pin, playerCount: 0, questions: questions.length });
+
+      // Classroom mode: pre-populate virtual players so the game can start without phones
+      const virtualPlayers: string[] = settings?.virtualPlayers || [];
+      if (settings?.noJoin && virtualPlayers.length > 0) {
+        for (const name of virtualPlayers) {
+          room.players.set(`virtual-${name}`, {
+            socketId: `virtual-${name}`,
+            name,
+            score: 0,
+            streak: 0,
+            alive: true,
+          });
+        }
+        const players = Array.from(room.players.values());
+        socket.emit('player_joined', {
+          totalPlayers: players.length,
+          players: players.map(p => ({ name: p.name, score: p.score })),
+        });
+      }
+
+      socket.emit('room_created', { pin, playerCount: room.players.size, questions: questions.length });
+    });
+
+    // HOST: manually adjust a player's score (classroom / no-device mode)
+    socket.on('manual_score', ({ pin, playerName, delta }: { pin: string; playerName: string; delta: number }) => {
+      const room = getRoom(pin);
+      if (!room) return;
+      const player = Array.from(room.players.values()).find(p => p.name === playerName);
+      if (!player) return;
+      player.score = Math.max(0, player.score + delta);
+      const rankings = Array.from(room.players.values())
+        .sort((a, b) => b.score - a.score)
+        .map(p => ({ name: p.name, score: p.score, team: p.team }));
+      socket.emit('leaderboard_update', { scores: rankings, rankings });
     });
 
     // PLAYER: join a game by PIN
