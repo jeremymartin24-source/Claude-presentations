@@ -190,6 +190,27 @@ export function registerKahootHandlers(io: Server, socket: Socket): void {
     }
   });
 
+  // No-devices: host marks a specific player as having answered correctly
+  // Awards time-based score based on how much time was left when host clicks
+  socket.on('kahoot:mark_correct', (data: { pin: string; playerName: string }) => {
+    const room = getRoom(data.pin);
+    if (!room || room.hostSocketId !== socket.id) return;
+    if (room.phase !== 'answer') return; // only during reveal phase
+
+    const player = Array.from(room.players.values()).find(p => p.name === data.playerName);
+    if (!player) return;
+
+    const q = room.questions[room.currentQuestion];
+    // Award a flat "answered correctly" score — use half the max timed score as a fair default
+    const earned = Math.round((q.points ?? 100) * 0.75);
+    player.score += earned;
+    player.streak++;
+
+    // Emit updated answer counts so the host can see the score change immediately
+    const scores = getLeaderboard(room).map(p => ({ name: p.name, score: p.score }));
+    socket.emit('kahoot:score_update', { playerName: data.playerName, earned, newScore: player.score, scores });
+  });
+
   // Host ends game early
   socket.on('kahoot:end', (data: { pin: string }) => {
     const room = getRoom(data.pin);

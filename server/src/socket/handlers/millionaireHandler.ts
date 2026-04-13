@@ -3,7 +3,7 @@ import { getRoom, getLeaderboard } from '../gameRooms';
 import { shuffle } from '../../utils/shuffle';
 
 const LADDER = [100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
-const SAFE_HAVENS = [4, 9]; // indices of guaranteed prizes (after wrong answer, keep this)
+const SAFE_HAVENS = [4, 9];
 
 function getSafeAmount(level: number): number {
   let safe = 0;
@@ -11,6 +11,10 @@ function getSafeAmount(level: number): number {
     if (level > idx) safe = LADDER[idx];
   }
   return safe;
+}
+
+function parseOptions(q: any): string[] {
+  try { return Array.isArray(q.options) ? q.options : JSON.parse(q.options ?? '[]'); } catch { return []; }
 }
 
 function sendQuestion(io: Server, pin: string): void {
@@ -27,20 +31,12 @@ function sendQuestion(io: Server, pin: string): void {
   room.phase = 'question';
   room.timerStarted = Date.now();
 
-  let options: string[] = [];
-  if (q.options) {
-    try { options = Array.isArray(q.options) ? q.options : JSON.parse(q.options as unknown as string); } catch { options = []; }
-  }
+  const contestant = room.millionaireContestant ? room.players.get(room.millionaireContestant) : undefined;
 
-  const contestant = room.millionaireContestant
-    ? room.players.get(room.millionaireContestant)
-    : undefined;
-
-  io.to(pin).emit('millionaire_question', {
+  io.to(pin).emit('question_reveal', {
     level,
     prizeMoney:  LADDER[level],
-    question:    q.question,
-    options,
+    question:    { text: q.question, options: parseOptions(q), correctIndex: -1 }, // correctIndex hidden until answer
     contestant:  contestant?.name ?? 'Contestant',
     safeAmount:  getSafeAmount(level),
     lifelines:   contestant?.lifelines,
@@ -52,27 +48,63 @@ function endGame(io: Server, pin: string, won: boolean): void {
   if (!room) return;
   room.phase = 'ended';
 
-  const level   = room.millionaireLevel ?? 0;
+  const level    = room.millionaireLevel ?? 0;
   const winnings = won ? LADDER[level - 1] ?? 0 : getSafeAmount(level);
-
-  const contestant = room.millionaireContestant
-    ? room.players.get(room.millionaireContestant)
-    : undefined;
-
-  if (contestant) {
-    contestant.score += winnings;
-  }
+  const contestant = room.millionaireContestant ? room.players.get(room.millionaireContestant) : undefined;
+  if (contestant) contestant.score += winnings;
 
   io.to(pin).emit('game_over', {
     contestant: contestant?.name,
     winnings,
     won,
-    leaderboard: getLeaderboard(room),
+    scores: getLeaderboard(room).map(p => ({ name: p.name, score: p.score })),
   });
 }
 
+function processAnswer(io: Server, socket: Socket, pin: string, answerText: string): void {
+  const room = getRoom(pin);
+  if (!room || room.phase !== 'question') return;
+
+  const level = room.millionaireLevel ?? 0;
+  const q     = room.questions[level];
+  const correct = answerText.trim().toLowerCase() === q.answer.trim().toLowerCase();
+
+  const options = parseOptions(q);
+  const correctIndex = options.findIndex((o: string) => o.trim().toLowerCase() === q.answer.trim().toLowerCase());
+
+  if (correct) {
+    room.millionaireLevel = level + 1;
+    io.to(pin).emit('millionaire:reveal', {
+      correct:       true,
+      correctAnswer: correctIndex,
+      correctText:   q.answer,
+      prizeMoney:    LADDER[level],
+      nextPrize:     LADDER[room.millionaireLevel] ?? 0,
+      level:         room.millionaireLevel,
+    });
+    if (room.millionaireLevel >= LADDER.length) {
+      setTimeout(() => endGame(io, pin, true), 3000);
+    } else {
+      setTimeout(() => sendQuestion(io, pin), 4000);
+    }
+  } else {
+    const safeAmount   = getSafeAmount(level);
+    const contestant   = room.millionaireContestant ? room.players.get(room.millionaireContestant) : undefined;
+    if (contestant) contestant.score += safeAmount;
+    io.to(pin).emit('millionaire:reveal', {
+      correct:       false,
+      correctAnswer: correctIndex,
+      correctText:   q.answer,
+      givenAnswer:   answerText,
+      safeAmount,
+    });
+    setTimeout(() => endGame(io, pin, false), 4000);
+  }
+}
+
 export function registerMillionaireHandlers(io: Server, socket: Socket): void {
-  socket.on('millionaire_start', (data: { pin: string; contestantSocketId?: string }) => {
+
+  socket.on('millionaire:start', (data: { pin: string; contestantName?: string }) => {
     const room = getRoom(data.pin);
     if (!room || room.hostSocketId !== socket.id) return;
     if (room.gameType !== 'millionaire') return;
@@ -81,228 +113,166 @@ export function registerMillionaireHandlers(io: Server, socket: Socket): void {
     room.millionaireLevel = 0;
     room.phase = 'playing';
 
-    // Pick contestant
-    if (data.contestantSocketId && room.players.has(data.contestantSocketId)) {
-      room.millionaireContestant = data.contestantSocketId;
-    } else {
-      const playerIds = Array.from(room.players.keys());
-      room.millionaireContestant = playerIds[Math.floor(Math.random() * playerIds.length)];
+    // Pick first contestant — by name (no-devices) or random (phone mode)
+    let contestantId: string | undefined;
+    if (data.contestantName) {
+      const found = Array.from(room.players.values()).find(p => p.name === data.contestantName);
+      contestantId = found?.socketId;
     }
+    if (!contestantId) {
+      const ids = Array.from(room.players.keys());
+      contestantId = ids[Math.floor(Math.random() * ids.length)];
+    }
+    room.millionaireContestant = contestantId;
 
-    const contestant = room.players.get(room.millionaireContestant!);
+    const contestant = contestantId ? room.players.get(contestantId) : undefined;
     if (contestant) {
       contestant.lifelines = { fiftyFifty: true, pollTheClass: true, phoneAFriend: true };
     }
 
-    io.to(data.pin).emit('millionaire_contestant_selected', {
-      name: contestant?.name,
-      socketId: room.millionaireContestant,
+    io.to(data.pin).emit('millionaire:contestant_selected', {
+      name:     contestant?.name,
+      socketId: contestantId,
     });
 
     setTimeout(() => sendQuestion(io, data.pin), 2000);
   });
 
-  // Contestant submits answer
-  socket.on('millionaire_answer', (data: { pin: string; answer: string }) => {
+  // Phone mode: contestant submits their answer
+  socket.on('millionaire:answer', (data: { pin: string; answer: string | number }) => {
     const room = getRoom(data.pin);
     if (!room || room.phase !== 'question') return;
-    if (room.gameType !== 'millionaire') return;
     if (room.millionaireContestant !== socket.id) return;
 
-    const level = room.millionaireLevel ?? 0;
-    const q = room.questions[level];
-    const correct = data.answer.trim().toLowerCase() === q.answer.trim().toLowerCase();
-
-    if (correct) {
-      room.millionaireLevel = level + 1;
-      const nextPrize = LADDER[room.millionaireLevel] ?? 0;
-
-      io.to(data.pin).emit('millionaire_correct', {
-        answer:      q.answer,
-        prizeMoney:  LADDER[level],
-        nextPrize,
-        level:       room.millionaireLevel,
-      });
-
-      if (room.millionaireLevel >= LADDER.length) {
-        setTimeout(() => endGame(io, data.pin, true), 3000);
-      } else {
-        setTimeout(() => sendQuestion(io, data.pin), 4000);
-      }
-    } else {
-      const safeAmount = getSafeAmount(level);
-      const contestant = room.players.get(socket.id);
-      if (contestant) contestant.score += safeAmount;
-
-      io.to(data.pin).emit('millionaire_wrong', {
-        correctAnswer: q.answer,
-        givenAnswer:   data.answer,
-        safeAmount,
-      });
-      setTimeout(() => endGame(io, data.pin, false), 4000);
-    }
+    const q = room.questions[room.millionaireLevel ?? 0];
+    const options = parseOptions(q);
+    const answerText = typeof data.answer === 'number' ? (options[data.answer] ?? '') : data.answer;
+    processAnswer(io, socket, data.pin, answerText);
   });
 
-  // Contestant walks away
-  socket.on('millionaire_walk_away', (data: { pin: string }) => {
+  // No-devices mode: host submits answer on behalf of contestant
+  socket.on('millionaire:host_answer', (data: { pin: string; answerIndex: number }) => {
+    const room = getRoom(data.pin);
+    if (!room || room.hostSocketId !== socket.id) return;
+    if (room.phase !== 'question') return;
+
+    const q = room.questions[room.millionaireLevel ?? 0];
+    const options = parseOptions(q);
+    const answerText = options[data.answerIndex] ?? '';
+    processAnswer(io, socket, data.pin, answerText);
+  });
+
+  // No-devices: host selects next contestant by name
+  socket.on('millionaire:host_select_contestant', (data: { pin: string; contestantName: string }) => {
+    const room = getRoom(data.pin);
+    if (!room || room.hostSocketId !== socket.id) return;
+
+    const found = Array.from(room.players.values()).find(p => p.name === data.contestantName);
+    if (!found) return;
+
+    room.millionaireContestant = found.socketId;
+    room.millionaireLevel = 0;
+    found.lifelines = { fiftyFifty: true, pollTheClass: true, phoneAFriend: true };
+
+    io.to(data.pin).emit('millionaire:contestant_selected', {
+      name:     found.name,
+      socketId: found.socketId,
+    });
+    setTimeout(() => sendQuestion(io, data.pin), 1000);
+  });
+
+  // Walk away
+  socket.on('millionaire:walk_away', (data: { pin: string }) => {
     const room = getRoom(data.pin);
     if (!room) return;
-    if (room.millionaireContestant !== socket.id) return;
+    // Allow either the contestant (phone) or host (no-devices) to walk away
+    if (room.millionaireContestant !== socket.id && room.hostSocketId !== socket.id) return;
 
-    const level     = room.millionaireLevel ?? 0;
-    const walkMoney = level > 0 ? LADDER[level - 1] : 0;
-    const contestant = room.players.get(socket.id);
+    const level      = room.millionaireLevel ?? 0;
+    const walkMoney  = level > 0 ? LADDER[level - 1] : 0;
+    const contestant = room.millionaireContestant ? room.players.get(room.millionaireContestant) : undefined;
     if (contestant) contestant.score += walkMoney;
 
-    io.to(data.pin).emit('millionaire_walk_away', {
+    io.to(data.pin).emit('millionaire:walked_away', {
       contestant: contestant?.name,
       winnings:   walkMoney,
     });
     setTimeout(() => endGame(io, data.pin, false), 3000);
   });
 
-  // Use 50/50 lifeline
-  socket.on('lifeline_fifty_fifty', (data: { pin: string }) => {
+  // 50/50 lifeline
+  socket.on('millionaire:lifeline', (data: { pin: string; type: '50-50' | 'poll' | 'phone' }) => {
     const room = getRoom(data.pin);
     if (!room || room.phase !== 'question') return;
-    if (room.millionaireContestant !== socket.id) return;
+    // Allow contestant (phone) or host (no-devices)
+    const isHost = room.hostSocketId === socket.id;
+    const isContestant = room.millionaireContestant === socket.id;
+    if (!isHost && !isContestant) return;
 
-    const contestant = room.players.get(socket.id);
-    if (!contestant?.lifelines?.fiftyFifty) return;
-    contestant.lifelines.fiftyFifty = false;
+    const contestant = room.millionaireContestant ? room.players.get(room.millionaireContestant) : undefined;
+    if (!contestant?.lifelines) return;
 
-    const level = room.millionaireLevel ?? 0;
-    const q = room.questions[level];
-    let options: string[] = [];
-    try { options = Array.isArray(q.options) ? q.options : JSON.parse(q.options as unknown as string); } catch { options = []; }
+    const q = room.questions[room.millionaireLevel ?? 0];
+    const options = parseOptions(q);
 
-    // Keep the correct answer and one random wrong answer
-    const wrong = options.filter((o) => o !== q.answer);
-    const shuffledWrong = shuffle(wrong);
-    const remaining = [q.answer, shuffledWrong[0]].filter(Boolean);
+    if (data.type === '50-50') {
+      if (!contestant.lifelines.fiftyFifty) return;
+      contestant.lifelines.fiftyFifty = false;
 
-    io.to(data.pin).emit('lifeline_fifty_fifty', { remaining: shuffle(remaining) });
-  });
+      const wrong = options.filter((o: string) => o.trim().toLowerCase() !== q.answer.trim().toLowerCase());
+      const remaining = [q.answer, shuffle(wrong)[0]].filter(Boolean);
+      io.to(data.pin).emit('millionaire:fifty_fifty', { remaining: shuffle(remaining) });
 
-  // Poll the class lifeline
-  socket.on('lifeline_poll_class', (data: { pin: string }) => {
-    const room = getRoom(data.pin);
-    if (!room || room.phase !== 'question') return;
-    if (room.millionaireContestant !== socket.id) return;
+    } else if (data.type === 'poll') {
+      if (!contestant.lifelines.pollTheClass) return;
+      contestant.lifelines.pollTheClass = false;
 
-    const contestant = room.players.get(socket.id);
-    if (!contestant?.lifelines?.pollTheClass) return;
-    contestant.lifelines.pollTheClass = false;
+      io.to(data.pin).emit('poll_class_start', { question: q.question, options, timeLimit: 15 });
 
-    const level = room.millionaireLevel ?? 0;
-    const q     = room.questions[level];
+      const votes: Record<string, number> = {};
+      for (const opt of options) votes[opt] = 0;
+      (room as any).pollVotes = votes;
 
-    let options: string[] = [];
-    try { options = Array.isArray(q.options) ? q.options : JSON.parse(q.options as unknown as string); } catch { options = []; }
+      setTimeout(() => {
+        const r = getRoom(data.pin);
+        const storedVotes = ((r ?? room) as any).pollVotes as Record<string, number>;
+        const total = Object.values(storedVotes).reduce((a, b) => a + b, 0) || 1;
+        const percentages: Record<string, number> = {};
+        for (const [opt, count] of Object.entries(storedVotes))
+          percentages[opt] = Math.round((count / total) * 100);
+        io.to(data.pin).emit('millionaire:poll_results', { votes: storedVotes, percentages });
+      }, 15_000);
 
-    // Ask audience — emit poll to all players (excluding contestant)
-    io.to(data.pin).emit('poll_class_start', {
-      question: q.question,
-      options,
-      timeLimit: 15,
-    });
+    } else if (data.type === 'phone') {
+      if (!contestant.lifelines.phoneAFriend) return;
+      contestant.lifelines.phoneAFriend = false;
 
-    const votes: Record<string, number> = {};
-    for (const opt of options) votes[opt] = 0;
-    (room as unknown as Record<string, unknown>)['pollVotes'] = votes;
-
-    // Collect votes for 15 seconds then reveal
-    setTimeout(() => {
-      const r = getRoom(data.pin);
-      const storedVotes = ((r ?? room) as unknown as Record<string, unknown>)['pollVotes'] as Record<string, number>;
-      const total = Object.values(storedVotes).reduce((a, b) => a + b, 0) || 1;
-      const percentages: Record<string, number> = {};
-      for (const [opt, count] of Object.entries(storedVotes)) {
-        percentages[opt] = Math.round((count / total) * 100);
+      const others = Array.from(room.players.values()).filter(p => p.socketId !== room.millionaireContestant);
+      if (others.length === 0) {
+        // No-devices: just show a timer modal
+        io.to(data.pin).emit('phone_a_friend_started', { friendName: 'a friend', timeLimit: 30 });
+        setTimeout(() => io.to(data.pin).emit('phone_a_friend_ended', { friendName: 'a friend' }), 30_000);
+        return;
       }
-      io.to(data.pin).emit('poll_class_results', { votes: storedVotes, percentages });
-    }, 15_000);
+      const friend = others[Math.floor(Math.random() * others.length)];
+      io.to(friend.socketId).emit('phone_a_friend_request', { question: q.question, options, timeLimit: 30, calledBy: contestant.name });
+      io.to(data.pin).emit('phone_a_friend_started', { friendName: friend.name, timeLimit: 30 });
+      setTimeout(() => io.to(data.pin).emit('phone_a_friend_ended', { friendName: friend.name }), 30_000);
+    }
   });
 
-  // Audience submits poll vote
+  // Audience votes in poll
   socket.on('poll_vote', (data: { pin: string; answer: string }) => {
     const room = getRoom(data.pin);
     if (!room) return;
-    const votes = (room as unknown as Record<string, unknown>)['pollVotes'] as Record<string, number> | undefined;
-    if (!votes) return;
-    if (votes[data.answer] !== undefined) votes[data.answer]++;
+    const votes = (room as any).pollVotes as Record<string, number> | undefined;
+    if (votes && votes[data.answer] !== undefined) votes[data.answer]++;
   });
 
-  // Phone a friend lifeline
-  socket.on('lifeline_phone_friend', (data: { pin: string }) => {
-    const room = getRoom(data.pin);
-    if (!room || room.phase !== 'question') return;
-    if (room.millionaireContestant !== socket.id) return;
-
-    const contestant = room.players.get(socket.id);
-    if (!contestant?.lifelines?.phoneAFriend) return;
-    contestant.lifelines.phoneAFriend = false;
-
-    const otherPlayers = Array.from(room.players.values()).filter((p) => p.socketId !== socket.id);
-    if (otherPlayers.length === 0) return;
-
-    const friend = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-    const level  = room.millionaireLevel ?? 0;
-    const q      = room.questions[level];
-
-    let options: string[] = [];
-    try { options = Array.isArray(q.options) ? q.options : JSON.parse(q.options as unknown as string); } catch { options = []; }
-
-    // Notify the selected "friend" and give them 30 seconds
-    io.to(friend.socketId).emit('phone_a_friend_request', {
-      question:   q.question,
-      options,
-      timeLimit:  30,
-      calledBy:   contestant.name,
-    });
-
-    io.to(data.pin).emit('phone_a_friend_started', {
-      friendName: friend.name,
-      timeLimit:  30,
-    });
-
-    // Auto-end call after 30s
-    setTimeout(() => {
-      io.to(data.pin).emit('phone_a_friend_ended', { friendName: friend.name });
-    }, 30_000);
-  });
-
-  // Friend sends their answer suggestion
+  // Phone friend response
   socket.on('phone_friend_response', (data: { pin: string; suggestion: string }) => {
     const room = getRoom(data.pin);
     if (!room) return;
-    io.to(data.pin).emit('phone_a_friend_response', {
-      suggestion: data.suggestion,
-    });
-  });
-
-  socket.on('millionaire_next_contestant', (data: { pin: string; contestantSocketId?: string }) => {
-    const room = getRoom(data.pin);
-    if (!room || room.hostSocketId !== socket.id) return;
-
-    if (data.contestantSocketId && room.players.has(data.contestantSocketId)) {
-      room.millionaireContestant = data.contestantSocketId;
-    } else {
-      const ids = Array.from(room.players.keys());
-      room.millionaireContestant = ids[Math.floor(Math.random() * ids.length)];
-    }
-
-    room.millionaireLevel = 0;
-    const contestant = room.players.get(room.millionaireContestant!);
-    if (contestant) {
-      contestant.lifelines = { fiftyFifty: true, pollTheClass: true, phoneAFriend: true };
-    }
-
-    io.to(data.pin).emit('millionaire_contestant_selected', {
-      name: contestant?.name,
-      socketId: room.millionaireContestant,
-    });
-
-    setTimeout(() => sendQuestion(io, data.pin), 2000);
+    io.to(data.pin).emit('phone_a_friend_response', { suggestion: data.suggestion });
   });
 }

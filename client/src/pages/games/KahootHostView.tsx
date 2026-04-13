@@ -33,6 +33,7 @@ export default function KahootHostView() {
   const location = useLocation();
   const navigate = useNavigate();
   const { pin, bankId, settings } = (location.state as { pin: string; bankId: string; settings: Record<string, unknown> }) || {};
+  const noJoin = (settings as any)?.noJoin;
 
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -82,6 +83,10 @@ export default function KahootHostView() {
       setTimeLeft(data.timeLeft);
     });
 
+    socket.on('kahoot:score_update', (data: { scores: Player[] }) => {
+      setScores(data.scores);
+    });
+
     return () => {
       socket.off('player_joined');
       socket.off('question_reveal');
@@ -90,6 +95,7 @@ export default function KahootHostView() {
       socket.off('leaderboard_update');
       socket.off('game_over');
       socket.off('timer_tick');
+      socket.off('kahoot:score_update');
     };
   }, []);
 
@@ -97,6 +103,7 @@ export default function KahootHostView() {
 
   const handleStart = () => socket.emit('kahoot:start', { pin });
   const handleNext = () => socket.emit('kahoot:next', { pin });
+  const handleMarkCorrect = (playerName: string) => socket.emit('kahoot:mark_correct', { pin, playerName });
   const handleEnd = () => {
     socket.emit('kahoot:end', { pin });
     navigate('/dashboard');
@@ -314,6 +321,25 @@ export default function KahootHostView() {
                   );
                 })}
               </div>
+              {/* No-devices: mark players correct to auto-award points */}
+              {noJoin && players.length > 0 && (
+                <div className="px-6 pb-4">
+                  <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+                    <div className="text-gray-400 text-xs uppercase tracking-widest mb-3 text-center">
+                      Who got it right? (awards points)
+                    </div>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {players.map(p => (
+                        <button key={p.name} onClick={() => handleMarkCorrect(p.name)}
+                          className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                          style={{ backgroundColor: '#680001' }}>
+                          <span className="text-green-300">✓</span> {p.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="flex justify-center pb-6">
                 <button
                   onClick={handleNext}

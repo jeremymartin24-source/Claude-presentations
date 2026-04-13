@@ -17,17 +17,20 @@ interface Question {
   correctIndex: number;
   index: number;
   total: number;
+  currentTeam: string;
+  grid: GridCell[][];
+  teamScores: Record<string, number>;
 }
 
-type GridCell = string | null; // team name or null
+type GridCell = string | null;
 
 const TEAM_COLORS: Record<string, { bg: string; text: string; hex: string }> = {
-  'Team Alpha': { bg: 'bg-red-600', text: 'text-white', hex: '#dc2626' },
-  'Team Beta': { bg: 'bg-blue-600', text: 'text-white', hex: '#2563eb' },
-  'Team Gamma': { bg: 'bg-green-600', text: 'text-white', hex: '#16a34a' },
-  'Team Delta': { bg: 'bg-yellow-500', text: 'text-black', hex: '#eab308' },
+  'Team Alpha':   { bg: 'bg-red-600',    text: 'text-white', hex: '#dc2626' },
+  'Team Beta':    { bg: 'bg-blue-600',   text: 'text-white', hex: '#2563eb' },
+  'Team Gamma':   { bg: 'bg-green-600',  text: 'text-white', hex: '#16a34a' },
+  'Team Delta':   { bg: 'bg-yellow-500', text: 'text-black', hex: '#eab308' },
   'Team Epsilon': { bg: 'bg-purple-600', text: 'text-white', hex: '#9333ea' },
-  'Team Zeta': { bg: 'bg-orange-500', text: 'text-white', hex: '#f97316' },
+  'Team Zeta':    { bg: 'bg-orange-500', text: 'text-white', hex: '#f97316' },
 };
 
 const GRID_SIZE = 6;
@@ -39,20 +42,23 @@ export default function TeamTakeoverHostView() {
   const location = useLocation();
   const navigate = useNavigate();
   const { pin, bankId, settings } = (location.state as { pin: string; bankId: string; settings: Record<string, unknown> }) || {};
+  const noJoin = (settings as any)?.noJoin;
 
   const teamNames: string[] = (settings as { teams?: string[] })?.teams || DEFAULT_TEAMS;
+
   const [grid, setGrid] = useState<GridCell[][]>(
     Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null))
   );
   const [teams, setTeams] = useState<Team[]>(
-    teamNames.map((name) => ({ name, color: TEAM_COLORS[name]?.hex || '#680001', score: 0, cellCount: 0 }))
+    teamNames.map(name => ({ name, color: TEAM_COLORS[name]?.hex || '#680001', score: 0, cellCount: 0 }))
   );
-  const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
+  const [currentTeamName, setCurrentTeamName] = useState(teamNames[0] ?? '');
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [phase, setPhase] = useState<Phase>('lobby');
   const [players, setPlayers] = useState<{ name: string; team: string }[]>([]);
-  const [highlightCells, setHighlightCells] = useState<[number, number][]>([]);
-  const [lastClaimed, setLastClaimed] = useState<{ row: number; col: number; team: string } | null>(null);
+  const [claimableCells, setClaimableCells] = useState<[number, number][]>([]);
+  const [lastClaimed, setLastClaimed] = useState<{ row: number; col: number } | null>(null);
+  const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
 
   useEffect(() => {
     const socket = getSocket();
@@ -64,25 +70,33 @@ export default function TeamTakeoverHostView() {
 
     socket.on('question_reveal', (data: Question) => {
       setCurrentQuestion(data);
+      setCurrentTeamName(data.currentTeam);
+      setShowCorrectAnswer(false);
+      setClaimableCells([]);
+      setLastClaimed(null);
+      if (data.grid) setGrid(data.grid);
+      if (data.teamScores) {
+        setTeams(prev => prev.map(t => ({
+          ...t,
+          score: data.teamScores[t.name] ?? t.score,
+        })));
+      }
       setPhase('question');
     });
 
-    socket.on('territory_update', (data: { grid: GridCell[][] }) => {
+    socket.on('territory_update', (data: { grid: GridCell[][]; teamScores: Record<string, number>; territoryCounts: Record<string, number> }) => {
       setGrid(data.grid);
-      // Recalculate team cell counts
-      const counts: Record<string, number> = {};
-      data.grid.forEach((row) => row.forEach((cell) => {
-        if (cell) counts[cell] = (counts[cell] || 0) + 1;
-      }));
-      setTeams((prev) => prev.map((t) => ({ ...t, cellCount: counts[t.name] || 0 })));
+      setTeams(prev => prev.map(t => ({
+        ...t,
+        score: data.teamScores[t.name] ?? t.score,
+        cellCount: data.territoryCounts[t.name] ?? 0,
+      })));
     });
 
-    socket.on('teamtakeover:correct', () => {
+    // Server confirms which cells are claimable after a correct answer
+    socket.on('teamtakeover:claimable', (data: { cells: [number, number][]; team: string }) => {
+      setClaimableCells(data.cells);
       setPhase('claiming');
-      // Find adjacent cells the current team can claim
-      const currentTeam = teamNames[currentTeamIndex];
-      const available = getClaimableCells(grid, currentTeam);
-      setHighlightCells(available);
     });
 
     socket.on('game_over', () => setPhase('gameover'));
@@ -91,64 +105,40 @@ export default function TeamTakeoverHostView() {
       socket.off('player_joined');
       socket.off('question_reveal');
       socket.off('territory_update');
-      socket.off('teamtakeover:correct');
+      socket.off('teamtakeover:claimable');
       socket.off('game_over');
     };
-  }, [currentTeamIndex, grid]);
+  }, []);
 
   const socket = getSocket();
 
-  const getClaimableCells = (g: GridCell[][], teamName: string): [number, number][] => {
-    const claimable: [number, number][] = [];
-    const occupied = new Set<string>();
-    g.forEach((row, r) => row.forEach((cell, c) => {
-      if (cell === teamName) occupied.add(`${r},${c}`);
-    }));
-    if (occupied.size === 0) {
-      // No cells yet - anywhere empty is valid for first claim
-      g.forEach((row, r) => row.forEach((cell, c) => {
-        if (!cell) claimable.push([r, c]);
-      }));
-      return claimable.slice(0, 4);
-    }
-    occupied.forEach((key) => {
-      const [r, c] = key.split(',').map(Number);
-      const neighbors: [number, number][] = [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]];
-      neighbors.forEach(([nr, nc]) => {
-        if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE && !g[nr][nc]) {
-          claimable.push([nr, nc]);
-        }
-      });
-    });
-    return claimable;
-  };
-
   const handleStart = () => {
     socket.emit('teamtakeover:start', { pin, teams: teamNames });
-    setPhase('question');
   };
 
-  const handleCellClick = (row: number, col: number) => {
-    if (phase !== 'claiming') return;
-    const isHighlighted = highlightCells.some(([r, c]) => r === row && c === col);
-    if (!isHighlighted) return;
-    const currentTeam = teamNames[currentTeamIndex];
-    socket.emit('teamtakeover:claim', { pin, row, col, teamName: currentTeam });
-    setLastClaimed({ row, col, team: currentTeam });
-    setHighlightCells([]);
-    const newGrid = grid.map((r, ri) => r.map((c, ci) => ri === row && ci === col ? currentTeam : c));
-    setGrid(newGrid);
-    const counts: Record<string, number> = {};
-    newGrid.forEach((r) => r.forEach((cell) => { if (cell) counts[cell] = (counts[cell] || 0) + 1; }));
-    setTeams((prev) => prev.map((t) => ({ ...t, cellCount: counts[t.name] || 0 })));
-    setCurrentTeamIndex((prev) => (prev + 1) % teamNames.length);
-    setPhase('question');
-    socket.emit('teamtakeover:next', { pin });
+  // Host marks current team's verbal answer as CORRECT
+  const handleCorrect = () => {
+    setShowCorrectAnswer(true);
+    socket.emit('teamtakeover:correct', { pin });
   };
 
+  // Host marks current team's verbal answer as WRONG
   const handleWrong = () => {
     socket.emit('teamtakeover:wrong', { pin });
-    setCurrentTeamIndex((prev) => (prev + 1) % teamNames.length);
+  };
+
+  // Host selects which cell to award after correct answer
+  const handleCellClick = (row: number, col: number) => {
+    if (phase !== 'claiming') return;
+    if (!claimableCells.some(([r, c]) => r === row && c === col)) return;
+
+    socket.emit('teamtakeover:claim', { pin, row, col, teamName: currentTeamName });
+    setLastClaimed({ row, col });
+    setClaimableCells([]);
+
+    // Advance to next question
+    socket.emit('teamtakeover:next', { pin });
+    setPhase('question');
   };
 
   const handleEnd = () => {
@@ -157,7 +147,6 @@ export default function TeamTakeoverHostView() {
   };
 
   const totalCells = GRID_SIZE * GRID_SIZE;
-  const currentTeamName = teamNames[currentTeamIndex];
   const currentTeamStyle = TEAM_COLORS[currentTeamName] || { bg: 'bg-red-600', text: 'text-white', hex: '#dc2626' };
 
   return (
@@ -189,13 +178,15 @@ export default function TeamTakeoverHostView() {
               Answer correctly to claim territory on the grid!<br />
               The team with the most cells wins.
             </div>
-            <div className="text-center">
-              <div className="text-gray-400 text-xl">Join at unoh.review — PIN:</div>
-              <div className="text-7xl font-black text-white tracking-widest">{pin}</div>
-            </div>
+            {!noJoin && (
+              <div className="text-center">
+                <div className="text-gray-400 text-xl">Join at unoh.review — PIN:</div>
+                <div className="text-7xl font-black text-white tracking-widest">{pin}</div>
+              </div>
+            )}
             <div className="flex flex-wrap gap-3 justify-center">
-              {teamNames.map((name) => {
-                const style = TEAM_COLORS[name] || { bg: 'bg-gray-600', text: 'text-white', hex: '#4b5563' };
+              {teamNames.map(name => {
+                const style = TEAM_COLORS[name] || { bg: 'bg-gray-600', text: 'text-white' };
                 return (
                   <div key={name} className={`${style.bg} ${style.text} px-5 py-3 rounded-xl font-bold text-lg`}>
                     {name}
@@ -203,8 +194,8 @@ export default function TeamTakeoverHostView() {
                 );
               })}
             </div>
-            <div className="text-xl text-white">{players.length} player{players.length !== 1 ? 's' : ''} joined</div>
-            <button onClick={handleStart} disabled={players.length === 0}
+            {!noJoin && <div className="text-xl text-white">{players.length} player{players.length !== 1 ? 's' : ''} joined</div>}
+            <button onClick={handleStart} disabled={!noJoin && players.length === 0}
               className="px-12 py-5 text-2xl font-black rounded-2xl text-white disabled:opacity-50"
               style={{ backgroundColor: '#680001' }}>
               START GAME →
@@ -219,7 +210,7 @@ export default function TeamTakeoverHostView() {
             {/* Left: Team scores */}
             <div className="w-52 bg-black border-r border-gray-800 flex flex-col p-3 overflow-y-auto">
               <div className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-3">Territories</div>
-              {teams.map((team) => {
+              {teams.map(team => {
                 const style = TEAM_COLORS[team.name] || { bg: 'bg-gray-600', text: 'text-white', hex: '#4b5563' };
                 const isCurrentTurn = team.name === currentTeamName;
                 return (
@@ -241,34 +232,34 @@ export default function TeamTakeoverHostView() {
               })}
             </div>
 
-            {/* Center: Grid */}
-            <div className="flex-1 flex flex-col items-center justify-center p-4 gap-4">
+            {/* Center: Grid + Question */}
+            <div className="flex-1 flex flex-col items-center justify-start p-4 gap-4 overflow-y-auto">
               {/* Current turn indicator */}
               <div className={`${currentTeamStyle.bg} ${currentTeamStyle.text} px-6 py-2 rounded-xl font-black text-lg`}>
-                {phase === 'claiming' ? `${currentTeamName} — CHOOSE A CELL` : `${currentTeamName}'s Turn`}
+                {phase === 'claiming' ? `${currentTeamName} — CHOOSE A CELL TO CLAIM` : `${currentTeamName}'s Turn`}
               </div>
 
-              {/* Grid */}
+              {/* Territory Grid */}
               <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))` }}>
                 {grid.map((row, ri) =>
                   row.map((cell, ci) => {
                     const style = cell ? TEAM_COLORS[cell] : null;
-                    const isHighlighted = highlightCells.some(([r, c]) => r === ri && c === ci);
+                    const isClaimable = claimableCells.some(([r, c]) => r === ri && c === ci);
                     const isLastClaimed = lastClaimed?.row === ri && lastClaimed?.col === ci;
                     return (
                       <motion.button
                         key={`${ri}-${ci}`}
                         onClick={() => handleCellClick(ri, ci)}
-                        animate={isLastClaimed ? { scale: [1, 1.3, 1] } : isHighlighted ? { scale: [1, 1.05, 1] } : {}}
-                        transition={{ repeat: isHighlighted ? Infinity : 0, duration: 1 }}
+                        animate={isLastClaimed ? { scale: [1, 1.3, 1] } : isClaimable ? { scale: [1, 1.05, 1] } : {}}
+                        transition={{ repeat: isClaimable ? Infinity : 0, duration: 1 }}
                         className={`w-14 h-14 rounded-lg border-2 flex items-center justify-center text-xs font-bold transition-all
                           ${style ? `${style.bg} ${style.text} border-transparent` : ''}
-                          ${!cell && !isHighlighted ? 'bg-gray-800 border-gray-700 text-gray-600 cursor-default' : ''}
-                          ${isHighlighted ? 'border-white cursor-pointer animate-pulse' : ''}
+                          ${!cell && !isClaimable ? 'bg-gray-800 border-gray-700 text-gray-600 cursor-default' : ''}
+                          ${isClaimable ? 'border-white cursor-pointer' : ''}
                         `}
-                        style={!cell && isHighlighted ? { backgroundColor: currentTeamStyle.hex + '55', borderColor: 'white' } : {}}
+                        style={!cell && isClaimable ? { backgroundColor: currentTeamStyle.hex + '55', borderColor: 'white' } : {}}
                       >
-                        {cell ? cell.split(' ')[1]?.[0] || '?' : isHighlighted ? '+' : ''}
+                        {cell ? (cell.split(' ')[1]?.[0] || '?') : isClaimable ? '+' : ''}
                       </motion.button>
                     );
                   })
@@ -276,29 +267,51 @@ export default function TeamTakeoverHostView() {
               </div>
 
               {/* Question */}
-              {currentQuestion && (
-                <div className="w-full max-w-2xl bg-gray-900 rounded-xl p-4 mt-2">
-                  <div className="text-2xl font-bold text-white mb-3">{currentQuestion.text}</div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {currentQuestion.options.map((opt, i) => (
-                      <div key={i} className="bg-gray-800 border border-gray-700 rounded-lg p-3 flex items-center gap-2">
-                        <span className="text-gray-400 font-black">{['A', 'B', 'C', 'D'][i]}.</span>
-                        <span className="text-white font-medium">{opt}</span>
-                      </div>
-                    ))}
+              {currentQuestion && phase === 'question' && (
+                <div className="w-full max-w-2xl bg-gray-900 rounded-xl p-4">
+                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-2">
+                    Q {(currentQuestion.index ?? 0) + 1} / {currentQuestion.total}
                   </div>
-                  {phase === 'question' && (
-                    <div className="flex gap-3 mt-3">
-                      <button onClick={() => setPhase('claiming')}
-                        className="flex-1 py-3 font-black rounded-lg text-white bg-green-700 hover:bg-green-600">
-                        ✓ CORRECT — Claim Cell
+                  <div className="text-2xl font-bold text-white mb-3">{currentQuestion.text}</div>
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    {currentQuestion.options.map((opt, i) => {
+                      const isCorrect = showCorrectAnswer && i === currentQuestion.correctIndex;
+                      return (
+                        <div key={i}
+                          className={`border rounded-lg p-3 flex items-center gap-2 transition-all
+                            ${isCorrect ? 'bg-green-800 border-green-400 text-white' : 'bg-gray-800 border-gray-700'}`}>
+                          <span className={`font-black ${isCorrect ? 'text-green-300' : 'text-gray-400'}`}>
+                            {['A', 'B', 'C', 'D'][i]}.
+                          </span>
+                          <span className="text-white font-medium">{opt}</span>
+                          {isCorrect && <span className="ml-auto text-green-300">✓</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button onClick={handleCorrect}
+                      className="flex-1 py-3 font-black rounded-lg text-white bg-green-700 hover:bg-green-600 transition-colors">
+                      ✓ CORRECT — Claim Cell
+                    </button>
+                    <button onClick={handleWrong}
+                      className="flex-1 py-3 font-black rounded-lg text-white bg-red-700 hover:bg-red-600 transition-colors">
+                      ✗ WRONG — Next Team
+                    </button>
+                    {!showCorrectAnswer && (
+                      <button onClick={() => setShowCorrectAnswer(true)}
+                        className="px-4 py-3 font-bold rounded-lg text-white bg-gray-700 hover:bg-gray-600 text-sm">
+                        Show Answer
                       </button>
-                      <button onClick={handleWrong}
-                        className="flex-1 py-3 font-black rounded-lg text-white bg-red-700 hover:bg-red-600">
-                        ✗ WRONG — Next Team
-                      </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {phase === 'claiming' && (
+                <div className="text-yellow-400 font-bold text-lg animate-pulse">
+                  Click a highlighted cell to claim it for {currentTeamName}
                 </div>
               )}
             </div>
@@ -330,7 +343,7 @@ export default function TeamTakeoverHostView() {
           </motion.div>
         )}
       </AnimatePresence>
-      {(location.state as any)?.settings?.noJoin && <ManualScorePanel pin={(location.state as any)?.pin} />}
+      {noJoin && <ManualScorePanel pin={pin} />}
     </div>
   );
 }

@@ -31,6 +31,7 @@ export default function CodeBreakerHostView() {
   const location = useLocation();
   const navigate = useNavigate();
   const { pin, bankId, settings } = (location.state as { pin: string; bankId: string; settings: Record<string, unknown> }) || {};
+  const noJoin = (settings as any)?.noJoin;
 
   const [phase, setPhase] = useState<Phase>('setup');
   const [secretPhrase, setSecretPhrase] = useState('');
@@ -75,12 +76,17 @@ export default function CodeBreakerHostView() {
 
     socket.on('game_over', () => setPhase('gameover'));
 
+    socket.on('scores_update', (data: { scores: Player[] }) => {
+      setScores(data.scores);
+    });
+
     return () => {
       socket.off('player_joined');
       socket.off('question_reveal');
       socket.off('codebreaker:letter_revealed');
       socket.off('codebreaker:phrase_solved');
       socket.off('game_over');
+      socket.off('scores_update');
     };
   }, []);
 
@@ -102,6 +108,10 @@ export default function CodeBreakerHostView() {
   };
 
   const handleNext = () => socket.emit('codebreaker:next', { pin });
+
+  const handleHostCorrect = (playerName: string) => {
+    socket.emit('codebreaker:host_correct', { pin, playerName });
+  };
 
   const handleGuessSubmit = (correct: boolean) => {
     socket.emit('codebreaker:guess_phrase', { pin, teamName: guessTeam, guess: guessText, correct });
@@ -213,7 +223,7 @@ export default function CodeBreakerHostView() {
             </div>
             <div className="text-xl text-white">{players.length} player{players.length !== 1 ? 's' : ''} joined</div>
             <div className="flex gap-3">
-              <button onClick={handleStart} disabled={players.length === 0}
+              <button onClick={handleStart} disabled={!noJoin && players.length === 0}
                 className="px-12 py-5 text-2xl font-black rounded-2xl text-white disabled:opacity-50"
                 style={{ backgroundColor: '#680001' }}>
                 START GAME →
@@ -276,6 +286,24 @@ export default function CodeBreakerHostView() {
               {!currentQuestion && (
                 <div className="flex-1 flex items-center justify-center">
                   <div className="text-gray-600 text-2xl">Press "Next Question" to continue...</div>
+                </div>
+              )}
+
+              {/* No-devices: player correct buttons */}
+              {noJoin && players.length > 0 && (
+                <div className="bg-gray-900 border border-gray-700 rounded-xl p-4">
+                  <div className="text-gray-400 text-xs uppercase tracking-widest mb-3">
+                    Who answered correctly? (reveals a letter)
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {players.map(p => (
+                      <button key={p.name} onClick={() => handleHostCorrect(p.name)}
+                        className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                        style={{ backgroundColor: '#680001' }}>
+                        <span className="text-green-300">✓</span> {p.name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 

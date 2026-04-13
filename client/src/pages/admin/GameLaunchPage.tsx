@@ -7,18 +7,18 @@ import { api } from '../../lib/api';
 import { motion } from 'framer-motion';
 
 const GAMES = [
-  { type: 'jeopardy', name: 'Jeopardy', icon: '📺', desc: 'Categories & points, team buzzers', buzzer: true },
-  { type: 'kahoot', name: 'Kahoot Quiz', icon: '⚡', desc: 'Timed MC questions, live leaderboard', buzzer: false },
-  { type: 'millionaire', name: 'Millionaire', icon: '💰', desc: 'Escalating difficulty with lifelines', buzzer: false },
-  { type: 'battleroyale', name: 'Battle Royale', icon: '⚔️', desc: 'Wrong answer = eliminated', buzzer: false },
-  { type: 'escaperoom', name: 'Escape Room', icon: '🔐', desc: 'Team sequential puzzle chains', buzzer: false },
-  { type: 'hotseat', name: 'Hot Seat', icon: '🔥', desc: 'One student vs. the class', buzzer: false },
-  { type: 'speedround', name: 'Speed Round', icon: '🚀', desc: 'Rapid-fire, fastest wins', buzzer: true },
-  { type: 'wager', name: 'Confidence Wager', icon: '🎲', desc: 'Bet your points on each answer', buzzer: false },
-  { type: 'bingo', name: 'Blackout Bingo', icon: '🎱', desc: 'Random bingo cards per student', buzzer: false },
-  { type: 'ranked', name: 'Ranked!', icon: '📊', desc: 'Put items in correct order', buzzer: false },
-  { type: 'teamtakeover', name: 'Team Takeover', icon: '🗺️', desc: 'Claim territories by answering', buzzer: false },
-  { type: 'codebreaker', name: 'Code Breaker', icon: '🔑', desc: 'Reveal letters to crack the phrase', buzzer: false },
+  { type: 'jeopardy',     name: 'Jeopardy',         icon: '📺', desc: 'Categories & points, team buzzers',   buzzer: true,  noDevices: true  },
+  { type: 'kahoot',       name: 'Kahoot Quiz',       icon: '⚡', desc: 'Timed MC questions, live leaderboard', buzzer: false, noDevices: true  },
+  { type: 'millionaire',  name: 'Millionaire',       icon: '💰', desc: 'Escalating difficulty with lifelines', buzzer: false, noDevices: true  },
+  { type: 'battleroyale', name: 'Battle Royale',     icon: '⚔️', desc: 'Wrong answer = eliminated',           buzzer: false, noDevices: false },
+  { type: 'escaperoom',   name: 'Escape Room',       icon: '🔐', desc: 'Team sequential puzzle chains',       buzzer: false, noDevices: false },
+  { type: 'hotseat',      name: 'Hot Seat',          icon: '🔥', desc: 'One student vs. the class',           buzzer: false, noDevices: true  },
+  { type: 'speedround',   name: 'Speed Round',       icon: '🚀', desc: 'Rapid-fire, fastest wins',            buzzer: true,  noDevices: false },
+  { type: 'wager',        name: 'Confidence Wager',  icon: '🎲', desc: 'Bet your points on each answer',      buzzer: false, noDevices: false },
+  { type: 'bingo',        name: 'Blackout Bingo',    icon: '🎱', desc: 'Random bingo cards per student',      buzzer: false, noDevices: false },
+  { type: 'ranked',       name: 'Ranked!',           icon: '📊', desc: 'Put items in correct order',          buzzer: false, noDevices: false },
+  { type: 'teamtakeover', name: 'Team Takeover',     icon: '🗺️', desc: 'Claim territories by answering',     buzzer: false, noDevices: true  },
+  { type: 'codebreaker',  name: 'Code Breaker',      icon: '🔑', desc: 'Reveal letters to crack the phrase',  buzzer: false, noDevices: true  },
 ];
 
 const EXAM_TYPES = [
@@ -215,16 +215,26 @@ export default function GameLaunchPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">
-                <div>
-                  <div className="text-white font-medium">No Devices Required</div>
-                  <div className="text-gray-500 text-sm">Pre-enter players/teams — score manually from the host view</div>
+              {selectedGame?.noDevices ? (
+                <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">
+                  <div>
+                    <div className="text-white font-medium">No Devices Required</div>
+                    <div className="text-gray-500 text-sm">Pre-enter players/teams — host scores verbally from the game view</div>
+                  </div>
+                  <button onClick={() => setSettings((s: any) => ({ ...s, noJoin: !s.noJoin }))}
+                    className={`w-12 h-6 rounded-full transition-colors ${settings.noJoin ? 'bg-unoh-red' : 'bg-gray-700'}`}>
+                    <div className={`w-5 h-5 rounded-full bg-white mx-0.5 transition-transform ${settings.noJoin ? 'translate-x-6' : 'translate-x-0'}`} />
+                  </button>
                 </div>
-                <button onClick={() => setSettings((s: any) => ({ ...s, noJoin: !s.noJoin }))}
-                  className={`w-12 h-6 rounded-full transition-colors ${settings.noJoin ? 'bg-unoh-red' : 'bg-gray-700'}`}>
-                  <div className={`w-5 h-5 rounded-full bg-white mx-0.5 transition-transform ${settings.noJoin ? 'translate-x-6' : 'translate-x-0'}`} />
-                </button>
-              </div>
+              ) : (
+                <div className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-5 py-4 opacity-40 cursor-not-allowed">
+                  <div>
+                    <div className="text-gray-500 font-medium">No Devices Required</div>
+                    <div className="text-gray-600 text-sm">Not available for {selectedGame?.name} — player input is required</div>
+                  </div>
+                  <div className="w-12 h-6 rounded-full bg-gray-800" />
+                </div>
+              )}
 
               {settings.noJoin && (
                 <div className="bg-gray-900 border border-gray-700 rounded-xl px-5 py-4 space-y-2">

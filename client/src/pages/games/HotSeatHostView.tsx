@@ -27,6 +27,7 @@ export default function HotSeatHostView() {
   const location = useLocation();
   const navigate = useNavigate();
   const { pin, bankId, settings } = (location.state as { pin: string; bankId: string; settings: Record<string, unknown> }) || {};
+  const noJoin = (settings as any)?.noJoin;
 
   const [players, setPlayers] = useState<Player[]>([]);
   const [hotSeatStudent, setHotSeatStudent] = useState<string>('');
@@ -159,7 +160,7 @@ export default function HotSeatHostView() {
                   className="bg-gray-800 text-white px-3 py-1 rounded-full text-sm">{p.name}</motion.span>
               ))}
             </div>
-            <button onClick={handleStart} disabled={players.length === 0}
+            <button onClick={handleStart} disabled={!noJoin && players.length === 0}
               className="px-12 py-5 text-2xl font-black rounded-2xl text-white disabled:opacity-50"
               style={{ backgroundColor: '#680001' }}>
               BEGIN 🔥

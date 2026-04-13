@@ -105,6 +105,47 @@ export function registerCodeBreakerHandlers(io: Server, socket: Socket) {
       endGame(io, pin, room);
     }
   });
+
+  // No-devices mode: host marks a player as having answered correctly
+  // Reveals a letter without advancing to the next question
+  socket.on('codebreaker:host_correct', ({ pin, playerName }: { pin: string; playerName: string }) => {
+    const room = getRoom(pin);
+    if (!room || room.hostSocketId !== socket.id) return;
+    if (!room.codePhrase || !room.revealedLetters) return;
+
+    const question = room.settings.currentQ as any;
+    if (!question) return;
+
+    const player = Array.from(room.players.values()).find(p => p.name === playerName);
+    if (player) {
+      player.score += question.points || 100;
+    }
+
+    // Reveal a random hidden letter
+    const hiddenIndices = room.revealedLetters
+      .map((r, i) => (!r ? i : -1))
+      .filter(i => i >= 0);
+
+    if (hiddenIndices.length > 0) {
+      const idx = hiddenIndices[Math.floor(Math.random() * hiddenIndices.length)];
+      room.revealedLetters[idx] = true;
+      io.to(pin).emit('codebreaker:letter_revealed', {
+        index: idx,
+        letter: room.codePhrase[idx],
+        masked: room.revealedLetters.map((rev, i) =>
+          room.codePhrase![i] === ' ' ? ' ' : (rev ? room.codePhrase![i] : '_')
+        ),
+        revealedBy: playerName,
+        score: player?.score ?? 0,
+      });
+    }
+
+    // Update scores for all clients
+    const scores = Array.from(room.players.values())
+      .sort((a: any, b: any) => b.score - a.score)
+      .map((p: any) => ({ name: p.name, score: p.score }));
+    io.to(pin).emit('scores_update', { scores });
+  });
 }
 
 function showNextQuestion(io: Server, pin: string, room: any) {
