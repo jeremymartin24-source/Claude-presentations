@@ -19,8 +19,7 @@ if (!fs.existsSync(dataDir)) {
 // Create/open the SQLite database
 export const db = new Database(resolvedDbPath);
 
-// node-sqlite3-wasm has no .pragma() — use exec() instead
-db.exec('PRAGMA journal_mode = WAL');
+// Enable foreign key enforcement (WAL mode omitted — can cause lock errors on Windows)
 db.exec('PRAGMA foreign_keys = ON');
 
 // node-sqlite3-wasm has no .transaction() — add a compatible shim
