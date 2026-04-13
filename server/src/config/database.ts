@@ -23,6 +23,21 @@ export const db = new Database(resolvedDbPath);
 db.exec('PRAGMA journal_mode = WAL');
 db.exec('PRAGMA foreign_keys = ON');
 
+// node-sqlite3-wasm has no .transaction() — add a compatible shim
+(db as any).transaction = function (fn: (...args: any[]) => any) {
+  return function (...args: any[]) {
+    (db as any).exec('BEGIN');
+    try {
+      const result = fn(...args);
+      (db as any).exec('COMMIT');
+      return result;
+    } catch (err) {
+      (db as any).exec('ROLLBACK');
+      throw err;
+    }
+  };
+};
+
 logger.info(`Database opened at: ${resolvedDbPath}`);
 
 /**
