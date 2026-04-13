@@ -38,6 +38,26 @@ db.exec('PRAGMA foreign_keys = ON');
   };
 };
 
+// node-sqlite3-wasm's stmt.run/get/all() take a single value argument,
+// but better-sqlite3 uses spread args: stmt.run(a, b, c).
+// Patch prepare() so all statements accept the better-sqlite3 calling convention.
+const _origPrepare = db.prepare.bind(db);
+(db as any).prepare = function (sql: string) {
+  const stmt = _origPrepare(sql);
+  function normalizeArgs(args: any[]) {
+    if (args.length === 0) return undefined;
+    if (args.length === 1) return args[0]; // single value or object — pass as-is
+    return args; // multiple positional → array
+  }
+  const origRun = stmt.run.bind(stmt);
+  const origGet = stmt.get.bind(stmt);
+  const origAll = stmt.all.bind(stmt);
+  (stmt as any).run = (...args: any[]) => origRun(normalizeArgs(args));
+  (stmt as any).get = (...args: any[]) => origGet(normalizeArgs(args));
+  (stmt as any).all = (...args: any[]) => origAll(normalizeArgs(args));
+  return stmt;
+};
+
 logger.info(`Database opened at: ${resolvedDbPath}`);
 
 /**
