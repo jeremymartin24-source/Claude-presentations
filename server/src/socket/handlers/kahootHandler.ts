@@ -3,14 +3,18 @@ import { getRoom, getLeaderboard } from '../gameRooms';
 import { calculateTimedScore, applyStreakBonus } from '../../services/scoreService';
 import { shuffle } from '../../utils/shuffle';
 
-const answerTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const answerTimers  = new Map<string, ReturnType<typeof setTimeout>>();
+const tickIntervals = new Map<string, ReturnType<typeof setInterval>>();
+// pin → { optionIndex: answerCount }
+const answerCounts  = new Map<string, Record<number, number>>();
+// pin → shuffled options for current question (to resolve submitted answer → index)
+const currentOptions = new Map<string, string[]>();
 
 function clearTimer(pin: string): void {
   const t = answerTimers.get(pin);
-  if (t) {
-    clearTimeout(t);
-    answerTimers.delete(pin);
-  }
+  if (t) { clearTimeout(t); answerTimers.delete(pin); }
+  const i = tickIntervals.get(pin);
+  if (i) { clearInterval(i); tickIntervals.delete(pin); }
 }
 
 function sendQuestion(io: Server, pin: string): void {
@@ -19,7 +23,8 @@ function sendQuestion(io: Server, pin: string): void {
 
   if (room.currentQuestion >= room.questions.length) {
     room.phase = 'ended';
-    io.to(pin).emit('game_over', { leaderboard: getLeaderboard(room) });
+    const scores = getLeaderboard(room).map(p => ({ name: p.name, score: p.score }));
+    io.to(pin).emit('game_over', { scores });
     return;
   }
 
@@ -27,6 +32,7 @@ function sendQuestion(io: Server, pin: string): void {
   room.phase = 'question';
   room.answerCount = 0;
   room.timerStarted = Date.now();
+  answerCounts.set(pin, {});
 
   // Parse options
   let options: string[] = [];
@@ -38,24 +44,44 @@ function sendQuestion(io: Server, pin: string): void {
     }
   }
 
-  const shuffledOptions = room.settings.shuffleAnswers !== false ? shuffle(options) : options;
+  const shuffledOptions = room.settings.shuffleAnswers !== false ? shuffle([...options]) : options;
+  currentOptions.set(pin, shuffledOptions);
 
-  io.to(pin).emit('question_start', {
-    index:        room.currentQuestion,
-    total:        room.questions.length,
-    question:     q.question,
-    options:      shuffledOptions,
-    timeLimit:    q.time_limit ?? 30,
-    points:       q.points ?? 100,
-    category:     q.category,
-    difficulty:   q.difficulty,
+  // correctIndex is the position of the right answer in the (possibly shuffled) array
+  const correctIndex = shuffledOptions.findIndex(
+    opt => opt.trim().toLowerCase() === q.answer.trim().toLowerCase()
+  );
+
+  const timeLimit = q.time_limit ?? 30;
+
+  io.to(pin).emit('question_reveal', {
+    question: {
+      text: q.question,
+      options: shuffledOptions,
+      correctIndex: correctIndex >= 0 ? correctIndex : 0,
+      timeLimit,
+    },
+    index: room.currentQuestion,
+    total: room.questions.length,
+    timeLeft: timeLimit,
   });
 
-  // Auto-advance when timer expires
-  const timeLimit = (q.time_limit ?? 30) * 1000;
+  // Per-second timer ticks
+  let remaining = timeLimit;
+  const interval = setInterval(() => {
+    remaining--;
+    io.to(pin).emit('timer_tick', { timeLeft: remaining });
+    if (remaining <= 0) {
+      clearInterval(interval);
+      tickIntervals.delete(pin);
+    }
+  }, 1000);
+  tickIntervals.set(pin, interval);
+
+  // Auto-advance when time expires
   const timer = setTimeout(() => {
     revealAnswer(io, pin);
-  }, timeLimit);
+  }, timeLimit * 1000);
   answerTimers.set(pin, timer);
 }
 
@@ -65,18 +91,13 @@ function revealAnswer(io: Server, pin: string): void {
   if (!room || room.phase === 'answer') return;
 
   room.phase = 'answer';
-  const q = room.questions[room.currentQuestion];
-
-  io.to(pin).emit('answer_reveal', {
-    correctAnswer: q.answer,
-    question:      q.question,
-    leaderboard:   getLeaderboard(room),
-  });
+  io.to(pin).emit('kahoot:time_up');
 }
 
 export function registerKahootHandlers(io: Server, socket: Socket): void {
+
   // Host starts the quiz
-  socket.on('kahoot_start', (data: { pin: string }) => {
+  socket.on('kahoot:start', (data: { pin: string }) => {
     const room = getRoom(data.pin);
     if (!room || room.hostSocketId !== socket.id) return;
     if (room.gameType !== 'kahoot') return;
@@ -88,11 +109,11 @@ export function registerKahootHandlers(io: Server, socket: Socket): void {
       room.questions = shuffle(room.questions);
     }
 
-    io.to(data.pin).emit('game_starting', { totalQuestions: room.questions.length });
-    setTimeout(() => sendQuestion(io, data.pin), 3000);
+    // Short delay so the client sees the transition
+    setTimeout(() => sendQuestion(io, data.pin), 500);
   });
 
-  // Player submits an answer
+  // Player submits an answer (phone-based games)
   socket.on('submit_answer', (data: { pin: string; answer: string }) => {
     const room = getRoom(data.pin);
     if (!room || room.phase !== 'question') return;
@@ -117,6 +138,18 @@ export function registerKahootHandlers(io: Server, socket: Socket): void {
 
     room.answerCount = (room.answerCount ?? 0) + 1;
 
+    // Track answer counts by option index for live bar chart
+    const opts = currentOptions.get(data.pin) || [];
+    const ansIdx = opts.findIndex(
+      opt => opt.trim().toLowerCase() === data.answer.trim().toLowerCase()
+    );
+    if (ansIdx >= 0) {
+      const counts = answerCounts.get(data.pin) || {};
+      counts[ansIdx] = (counts[ansIdx] || 0) + 1;
+      answerCounts.set(data.pin, counts);
+      io.to(data.pin).emit('kahoot:answers_updated', { counts });
+    }
+
     socket.emit('answer_ack', {
       correct,
       earned,
@@ -125,37 +158,46 @@ export function registerKahootHandlers(io: Server, socket: Socket): void {
       correctAnswer: correct ? undefined : q.answer,
     });
 
-    // If all alive players have answered, reveal early
-    const totalPlayers = room.players.size;
-    if (room.answerCount >= totalPlayers) {
+    // Reveal early if every player has answered
+    if (room.answerCount >= room.players.size) {
       revealAnswer(io, data.pin);
     }
   });
 
-  // Host advances to next question
-  socket.on('next_question', (data: { pin: string }) => {
+  // Host presses "Next" — two-step: reveal → leaderboard → next question
+  socket.on('kahoot:next', (data: { pin: string }) => {
     const room = getRoom(data.pin);
     if (!room || room.hostSocketId !== socket.id) return;
     if (room.gameType !== 'kahoot') return;
 
     clearTimer(data.pin);
-    room.currentQuestion++;
 
-    if (room.currentQuestion >= room.questions.length) {
-      room.phase = 'ended';
-      io.to(data.pin).emit('game_over', { leaderboard: getLeaderboard(room) });
+    if (room.phase === 'answer') {
+      // First press after time_up: show leaderboard
+      room.phase = 'leaderboard';
+      const scores = getLeaderboard(room).map(p => ({ name: p.name, score: p.score }));
+      io.to(data.pin).emit('leaderboard_update', { scores });
     } else {
-      io.to(data.pin).emit('leaderboard_update', { leaderboard: getLeaderboard(room) });
-      setTimeout(() => sendQuestion(io, data.pin), 4000);
+      // Second press (from leaderboard): advance to next question
+      room.currentQuestion++;
+      if (room.currentQuestion >= room.questions.length) {
+        room.phase = 'ended';
+        const scores = getLeaderboard(room).map(p => ({ name: p.name, score: p.score }));
+        io.to(data.pin).emit('game_over', { scores });
+      } else {
+        sendQuestion(io, data.pin);
+      }
     }
   });
 
-  socket.on('kahoot_end', (data: { pin: string }) => {
+  // Host ends game early
+  socket.on('kahoot:end', (data: { pin: string }) => {
     const room = getRoom(data.pin);
     if (!room || room.hostSocketId !== socket.id) return;
 
     clearTimer(data.pin);
     room.phase = 'ended';
-    io.to(data.pin).emit('game_over', { leaderboard: getLeaderboard(room) });
+    const scores = getLeaderboard(room).map(p => ({ name: p.name, score: p.score }));
+    io.to(data.pin).emit('game_over', { scores });
   });
 }
