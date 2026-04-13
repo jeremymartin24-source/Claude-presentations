@@ -21,39 +21,44 @@ function getLanIP(): string {
 
 // POST /api/games/create
 router.post('/create', requireAdmin, async (req: Request, res: Response) => {
-  const { game_type, bank_id, course_id, settings } = req.body;
-  if (!game_type) return res.status(400).json({ error: 'game_type required' });
+  try {
+    const { game_type, bank_id, course_id, settings } = req.body;
+    if (!game_type) return res.status(400).json({ error: 'game_type required' });
 
-  const pin = generateReadablePin();
-  const sessionResult = db.prepare(`
-    INSERT INTO game_sessions (game_type, course_id, bank_id, pin, settings, status)
-    VALUES (?, ?, ?, ?, ?, 'active')
-  `).run(game_type, course_id || null, bank_id || null, pin, JSON.stringify(settings || {}));
+    const pin = generateReadablePin();
+    const sessionResult = db.prepare(`
+      INSERT INTO game_sessions (game_type, course_id, bank_id, pin, settings, status)
+      VALUES (?, ?, ?, ?, ?, 'active')
+    `).run(game_type, course_id || null, bank_id || null, pin, JSON.stringify(settings || {}));
 
-  registerPin(pin, {
-    sessionId: sessionResult.lastInsertRowid as number,
-    gameType: game_type,
-    bankId: bank_id,
-  });
+    registerPin(pin, {
+      sessionId: sessionResult.lastInsertRowid as number,
+      gameType: game_type,
+      bankId: bank_id,
+    });
 
-  // In production use the public Railway URL, otherwise use LAN IP
-  const baseUrl = process.env.PUBLIC_URL
-    || (process.env.NODE_ENV === 'production'
-        ? 'https://claude-presentations-production.up.railway.app'
-        : `http://${getLanIP()}:3000`);
-  const joinUrl = `${baseUrl}/join?pin=${pin}`;
-  const qrDataUrl = await QRCode.toDataURL(joinUrl, {
-    color: { dark: '#680001', light: '#ffffff' },
-    width: 300,
-    margin: 2,
-  });
+    // In production use the public Railway URL, otherwise use LAN IP
+    const baseUrl = process.env.PUBLIC_URL
+      || (process.env.NODE_ENV === 'production'
+          ? 'https://claude-presentations-production.up.railway.app'
+          : `http://${getLanIP()}:3000`);
+    const joinUrl = `${baseUrl}/join?pin=${pin}`;
+    const qrDataUrl = await QRCode.toDataURL(joinUrl, {
+      color: { dark: '#680001', light: '#ffffff' },
+      width: 300,
+      margin: 2,
+    });
 
-  res.status(201).json({
-    pin,
-    sessionId: sessionResult.lastInsertRowid,
-    joinUrl,
-    qrDataUrl,
-  });
+    res.status(201).json({
+      pin,
+      sessionId: sessionResult.lastInsertRowid,
+      joinUrl,
+      qrDataUrl,
+    });
+  } catch (err) {
+    console.error('[ERROR] POST /games/create failed:', err);
+    res.status(500).json({ error: 'Failed to create game session', detail: (err as Error).message });
+  }
 });
 
 // GET /api/games/:pin

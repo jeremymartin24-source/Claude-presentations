@@ -60,8 +60,9 @@ export default function GameLaunchPage() {
       });
       setLaunched(r.data);
       setStep(4);
-    } catch (e) {
-      alert('Failed to create game session');
+    } catch (e: any) {
+      const detail = e?.response?.data?.detail || e?.response?.data?.error || e?.message || 'Unknown error';
+      alert(`Failed to create game session: ${detail}`);
     } finally {
       setLaunching(false);
     }
