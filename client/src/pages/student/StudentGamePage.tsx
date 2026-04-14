@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../../lib/socket';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Phase = 'lobby' | 'playing' | 'question' | 'answer' | 'leaderboard' | 'ended';
+type Phase = 'lobby' | 'playing' | 'question' | 'answer' | 'leaderboard' | 'ended' | 'eliminated';
 
 const ANSWER_COLORS = [
   'bg-red-700 hover:bg-red-600 border-red-500',
@@ -62,11 +62,30 @@ export default function StudentGamePage() {
       setPhase('ended');
       navigate('/student/leaderboard', { state: { scores: finalScores, playerName } });
     });
-    socket.on('eliminated', ({ playerName: p }) => {
-      if (p === playerName) setPhase('ended');
+    // Battle Royale: server emits battleroyale:question in addition to question_reveal
+    socket.on('battleroyale:question', (data: { question: string; options: string[]; timeLimit: number; points: number }) => {
+      setQuestion({ text: data.question, options: data.options });
+      setAnswered(false);
+      setResult(null);
+      setTimeLeft(data.timeLimit || 30);
+      setPhase('question');
     });
 
-    // Timer tick
+    // Battle Royale: individual elimination notice
+    socket.on('eliminated', ({ playerName: p }: { playerName: string }) => {
+      if (p === playerName) setPhase('eliminated');
+    });
+
+    // Battle Royale: answer ack (maps to same result display)
+    socket.on('battleroyale:answer_ack', ({ correct }: { correct: boolean }) => {
+      setResult({ correct, pointsEarned: 0 }); // pointsEarned updated via answer_result
+      setPhase('answer');
+    });
+
+    // Timer sync from server (overrides local countdown)
+    socket.on('timer_tick', ({ timeLeft: t }: { timeLeft: number }) => setTimeLeft(t));
+
+    // Local countdown fallback (only ticks when no server timer_tick arrives)
     const timer = setInterval(() => setTimeLeft(t => Math.max(0, t - 1)), 1000);
 
     return () => {
@@ -76,7 +95,10 @@ export default function StudentGamePage() {
       socket.off('answer_result');
       socket.off('leaderboard_update');
       socket.off('game_over');
+      socket.off('battleroyale:question');
+      socket.off('battleroyale:answer_ack');
       socket.off('eliminated');
+      socket.off('timer_tick');
       clearInterval(timer);
     };
   }, [playerName, gameType]);
@@ -220,6 +242,24 @@ export default function StudentGamePage() {
           ))}
         </div>
         <p className="text-gray-500 mt-6 text-sm">Next question coming up...</p>
+      </div>
+    );
+  }
+
+  // Battle Royale: eliminated screen
+  if (phase === 'eliminated') {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6 text-center">
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200 }}>
+          <div className="text-8xl mb-4">💀</div>
+          <h2 className="text-4xl font-black text-red-400">Eliminated!</h2>
+          <p className="text-gray-400 mt-3 text-lg">Better luck next time, {playerName}.</p>
+          <p className="text-gray-600 mt-2 text-sm">Watch the rest of the battle on the projector.</p>
+          <div className="mt-6 bg-gray-900 rounded-2xl px-8 py-4">
+            <p className="text-gray-500 text-sm">Final score</p>
+            <p className="text-white font-black text-3xl">{score.toLocaleString()}</p>
+          </div>
+        </motion.div>
       </div>
     );
   }
