@@ -7,6 +7,12 @@ import JoinPage from '../pages/student/JoinPage';
 import BuzzerPage from '../pages/student/BuzzerPage';
 import StudentGamePage from '../pages/student/StudentGamePage';
 import LeaderboardPage from '../pages/student/LeaderboardPage';
+import BingoStudentPage from '../pages/student/BingoStudentPage';
+import RankedStudentPage from '../pages/student/RankedStudentPage';
+import MillionaireStudentPage from '../pages/student/MillionaireStudentPage';
+import HotSeatStudentPage from '../pages/student/HotSeatStudentPage';
+import CodeBreakerStudentPage from '../pages/student/CodeBreakerStudentPage';
+import SpeedRoundStudentPage from '../pages/student/SpeedRoundStudentPage';
 
 // Admin
 import AdminLoginPage from '../pages/admin/AdminLoginPage';
@@ -49,6 +55,12 @@ export default function AppRouter() {
       <Route path="/student/game" element={<StudentGamePage />} />
       <Route path="/student/buzzer" element={<BuzzerPage />} />
       <Route path="/student/leaderboard" element={<LeaderboardPage />} />
+      <Route path="/student/bingo" element={<BingoStudentPage />} />
+      <Route path="/student/ranked" element={<RankedStudentPage />} />
+      <Route path="/student/millionaire" element={<MillionaireStudentPage />} />
+      <Route path="/student/hotseat" element={<HotSeatStudentPage />} />
+      <Route path="/student/codebreaker" element={<CodeBreakerStudentPage />} />
+      <Route path="/student/speedround" element={<SpeedRoundStudentPage />} />
 
       {/* Admin Auth */}
       <Route path="/admin/login" element={<AdminLoginPage />} />

@@ -11,13 +11,25 @@ export default function JoinPage() {
   const [joining, setJoining] = useState(false);
   const navigate = useNavigate();
 
+  function getStudentRoute(gameType: string): string {
+    const routes: Record<string, string> = {
+      bingo:       '/student/bingo',
+      ranked:      '/student/ranked',
+      millionaire: '/student/millionaire',
+      hotseat:     '/student/hotseat',
+      codebreaker: '/student/codebreaker',
+      speedround:  '/student/speedround',
+    };
+    return routes[gameType] ?? '/student/game';
+  }
+
   useEffect(() => {
     const socket = getSocket();
     socket.on('join_success', ({ pin, gameType, playerName }) => {
       localStorage.setItem('playerName', playerName);
       localStorage.setItem('gamePin', pin);
       localStorage.setItem('gameType', gameType);
-      navigate('/student/game');
+      navigate(getStudentRoute(gameType));
     });
     socket.on('join_error', ({ message }) => {
       setError(message);
