@@ -20,6 +20,7 @@ import SettingsPage from '../pages/admin/SettingsPage';
 
 // Game host views
 import JeopardyHostView from '../pages/games/JeopardyHostView';
+import JeopardyDisplayView from '../pages/games/JeopardyDisplayView';
 import KahootHostView from '../pages/games/KahootHostView';
 import SpeedRoundHostView from '../pages/games/SpeedRoundHostView';
 import BattleRoyaleHostView from '../pages/games/BattleRoyaleHostView';
@@ -63,6 +64,7 @@ export default function AppRouter() {
 
       {/* Game Host Views */}
       <Route path="/game/jeopardy" element={<RequireAdmin><JeopardyHostView /></RequireAdmin>} />
+      <Route path="/game/jeopardy/display" element={<JeopardyDisplayView />} />
       <Route path="/game/kahoot" element={<RequireAdmin><KahootHostView /></RequireAdmin>} />
       <Route path="/game/speedround" element={<RequireAdmin><SpeedRoundHostView /></RequireAdmin>} />
       <Route path="/game/battleroyale" element={<RequireAdmin><BattleRoyaleHostView /></RequireAdmin>} />

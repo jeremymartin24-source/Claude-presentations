@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../../context/AdminContext';
 import { AdminNav } from '../../components/admin/AdminNav';
@@ -40,6 +40,12 @@ export default function GameLaunchPage() {
   const [playerNames, setPlayerNames] = useState('');
   const [launched, setLaunched] = useState<any>(null);
   const [launching, setLaunching] = useState(false);
+  const [jeopardyCompat, setJeopardyCompat] = useState<{
+    categoryCount: number;
+    perCategory: Record<string, number>;
+    warnings: string[];
+  } | null>(null);
+  const [compatLoading, setCompatLoading] = useState(false);
 
   useEffect(() => { fetchCourses(); }, []);
   useEffect(() => {
@@ -49,6 +55,40 @@ export default function GameLaunchPage() {
   }, [selectedCourse]);
 
   const filteredBanks = banks.filter(b => b.exam_type === selectedExam);
+
+  // Fetch Jeopardy compatibility info when a bank is selected for Jeopardy
+  const fetchJeopardyCompat = useCallback(async (bankId: number) => {
+    setCompatLoading(true);
+    setJeopardyCompat(null);
+    try {
+      const r = await api.get(`/banks/${bankId}/questions`);
+      const questions: Array<{ category?: string }> = r.data;
+      const perCategory: Record<string, number> = {};
+      for (const q of questions) {
+        const cat = (q.category || 'General').trim();
+        perCategory[cat] = (perCategory[cat] ?? 0) + 1;
+      }
+      const categoryCount = Object.keys(perCategory).length;
+      const warnings: string[] = [];
+      for (const [cat, count] of Object.entries(perCategory)) {
+        if (count < 3) warnings.push(`"${cat}" has only ${count} question${count === 1 ? '' : 's'} (need ≥3 for a full column)`);
+      }
+      if (categoryCount < 5) warnings.push(`Only ${categoryCount} categor${categoryCount === 1 ? 'y' : 'ies'} found — Jeopardy works best with 5–6`);
+      setJeopardyCompat({ categoryCount, perCategory, warnings });
+    } catch {
+      // silently ignore
+    } finally {
+      setCompatLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedGame?.type === 'jeopardy' && selectedBank?.id) {
+      fetchJeopardyCompat(selectedBank.id);
+    } else {
+      setJeopardyCompat(null);
+    }
+  }, [selectedGame, selectedBank]);
 
   const launch = async () => {
     setLaunching(true);
@@ -164,6 +204,45 @@ export default function GameLaunchPage() {
                     </div>
                   ) : (
                     <p className="text-gray-600 text-sm py-4">No {selectedExam} banks for this course. <button className="text-unoh-red hover:underline" onClick={() => navigate('/admin/banks')}>Create one →</button></p>
+                  )}
+
+                  {/* Jeopardy compatibility card */}
+                  {selectedGame?.type === 'jeopardy' && selectedBank && (
+                    <div className="mt-4 rounded-xl border border-blue-700 bg-blue-950/60 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-blue-400 font-bold text-sm uppercase tracking-wide">Jeopardy Compatibility</span>
+                        {compatLoading && <span className="text-gray-500 text-xs animate-pulse">Analyzing...</span>}
+                      </div>
+                      {jeopardyCompat && !compatLoading && (
+                        <>
+                          <div className="flex gap-6 mb-3 flex-wrap">
+                            <div className="text-center">
+                              <div className="text-2xl font-black text-white">{jeopardyCompat.categoryCount}</div>
+                              <div className="text-gray-400 text-xs">Categories</div>
+                            </div>
+                            {Object.entries(jeopardyCompat.perCategory).slice(0, 6).map(([cat, count]) => (
+                              <div key={cat} className="text-center">
+                                <div className={`text-xl font-black ${count < 3 ? 'text-red-400' : count < 5 ? 'text-yellow-400' : 'text-green-400'}`}>
+                                  {count}
+                                </div>
+                                <div className="text-gray-500 text-xs max-w-20 truncate" title={cat}>{cat}</div>
+                              </div>
+                            ))}
+                          </div>
+                          {jeopardyCompat.warnings.length > 0 ? (
+                            <div className="space-y-1">
+                              {jeopardyCompat.warnings.map((w, i) => (
+                                <div key={i} className="flex items-start gap-2 text-yellow-400 text-xs">
+                                  <span className="shrink-0">⚠️</span><span>{w}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-green-400 text-xs">✓ Bank looks good for Jeopardy!</div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               </>
