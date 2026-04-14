@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminNav } from '../../components/admin/AdminNav';
 import { api } from '../../lib/api';
 
@@ -9,9 +10,23 @@ const GAME_ICONS: Record<string, string> = {
 };
 
 export default function SessionHistoryPage() {
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState<any[]>([]);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [detail, setDetail] = useState<any>(null);
+
+  const handleRunAgain = (s: any) => {
+    navigate('/admin/launch', {
+      state: {
+        prefill: {
+          gameType: s.game_type,
+          bankId:   s.bank_id,
+          courseId: s.course_id,
+          settings: s.settings,
+        },
+      },
+    });
+  };
 
   useEffect(() => {
     api.get('/sessions').then(r => setSessions(r.data)).catch(() => {});
@@ -62,11 +77,17 @@ export default function SessionHistoryPage() {
                     <div className="text-gray-600 text-xs">{formatDuration(s.started_at, s.ended_at)}</div>
                   </div>
                   {s.top_score != null && (
-                    <div className="text-right">
+                    <div className="text-right hidden sm:block">
                       <div className="text-yellow-400 font-bold">🏆 {s.top_score?.toLocaleString()}</div>
                       <div className="text-gray-600 text-xs">top score</div>
                     </div>
                   )}
+                  <button
+                    onClick={e => { e.stopPropagation(); handleRunAgain(s); }}
+                    className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-700 text-gray-300 hover:border-unoh-red hover:text-white transition-colors"
+                    title="Re-launch this game with the same settings">
+                    ▶ Run Again
+                  </button>
                   <span className="text-gray-600">{expanded === s.id ? '▲' : '▼'}</span>
                 </div>
 

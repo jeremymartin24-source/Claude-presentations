@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminContext } from '../../context/AdminContext';
 import { AdminNav } from '../../components/admin/AdminNav';
 import { QRCodeDisplay } from '../../components/common/QRCodeDisplay';
@@ -30,7 +30,9 @@ const EXAM_TYPES = [
 export default function GameLaunchPage() {
   const { courses, fetchCourses } = useAdminContext();
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(1);
+  const [isPrefilled, setIsPrefilled] = useState(false);
   const [selectedGame, setSelectedGame] = useState<any>(null);
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [selectedExam, setSelectedExam] = useState('general');
@@ -48,6 +50,42 @@ export default function GameLaunchPage() {
   const [compatLoading, setCompatLoading] = useState(false);
 
   useEffect(() => { fetchCourses(); }, []);
+
+  // Pre-fill from a previous session ("Run Again" flow).
+  // Runs once courses are loaded so we can resolve the course object.
+  useEffect(() => {
+    const prefill = (location.state as any)?.prefill;
+    if (!prefill || isPrefilled || courses.length === 0) return;
+
+    const game = GAMES.find(g => g.type === prefill.gameType);
+    if (game) setSelectedGame(game);
+
+    if (prefill.courseId) {
+      const course = courses.find((c: any) => c.id === prefill.courseId);
+      if (course) setSelectedCourse(course);
+    }
+
+    if (prefill.bankId) {
+      api.get(`/banks/${prefill.bankId}`)
+        .then(r => setSelectedBank(r.data))
+        .catch(() => {});
+    }
+
+    if (prefill.settings) {
+      try {
+        const parsed = typeof prefill.settings === 'string'
+          ? JSON.parse(prefill.settings)
+          : prefill.settings;
+        setSettings(parsed);
+        if (parsed.virtualPlayers?.length) {
+          setPlayerNames((parsed.virtualPlayers as string[]).join('\n'));
+        }
+      } catch { /* ignore bad JSON */ }
+    }
+
+    setIsPrefilled(true);
+    setStep(3);
+  }, [courses, isPrefilled]);
   useEffect(() => {
     if (selectedCourse) {
       api.get(`/courses/${selectedCourse.id}/banks`).then(r => setBanks(r.data));
@@ -260,7 +298,31 @@ export default function GameLaunchPage() {
         {/* Step 3: Settings */}
         {step === 3 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-white mb-4">Game Settings</h2>
+            <div className="flex items-center gap-3 mb-2 flex-wrap">
+              <h2 className="text-xl font-bold text-white">Game Settings</h2>
+              {isPrefilled && (
+                <span className="flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-unoh-red/20 border border-unoh-red/40 text-red-300">
+                  ▶ Pre-filled from last session
+                  <button onClick={() => { setIsPrefilled(false); setStep(1); }}
+                    className="ml-1 text-red-400 hover:text-white" title="Start fresh">✕</button>
+                </span>
+              )}
+            </div>
+            {isPrefilled && selectedGame && (
+              <div className="flex items-center gap-3 bg-gray-900 border border-gray-700 rounded-xl px-5 py-3">
+                <span className="text-2xl">{selectedGame.icon}</span>
+                <div className="flex-1">
+                  <div className="text-white font-bold">{selectedGame.name}</div>
+                  <div className="text-gray-500 text-xs">
+                    {selectedBank?.name ?? 'No bank selected'}{selectedCourse ? ` · ${selectedCourse.name}` : ''}
+                  </div>
+                </div>
+                <button onClick={() => setStep(1)}
+                  className="text-xs text-gray-500 hover:text-white border border-gray-700 hover:border-gray-500 rounded-lg px-3 py-1.5 transition-colors">
+                  Change
+                </button>
+              </div>
+            )}
 
             <div className="space-y-4">
               <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">

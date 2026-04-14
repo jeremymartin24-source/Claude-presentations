@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../../context/AdminContext';
 import { AdminNav } from '../../components/admin/AdminNav';
@@ -15,6 +15,19 @@ export default function AdminDashboard() {
     api.get('/stats/overview').then(r => setStats(r.data)).catch(() => {});
     api.get('/stats/recent').then(r => setRecent(r.data)).catch(() => {});
   }, []);
+
+  const handleRunAgain = useCallback((s: any) => {
+    navigate('/admin/launch', {
+      state: {
+        prefill: {
+          gameType: s.game_type,
+          bankId:   s.bank_id,
+          courseId: s.course_id,
+          settings: s.settings,
+        },
+      },
+    });
+  }, [navigate]);
 
   const GAME_ICONS: Record<string, string> = {
     jeopardy: '📺', kahoot: '⚡', millionaire: '💰', battleroyale: '⚔️',
@@ -67,7 +80,7 @@ export default function AdminDashboard() {
           </div>
           <div className="space-y-2">
             {recent.map((s: any) => (
-              <div key={s.id} className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4 flex items-center justify-between hover:border-gray-600 transition-colors">
+              <div key={s.id} className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4 flex items-center justify-between hover:border-gray-600 transition-colors group">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{GAME_ICONS[s.game_type] || '🎮'}</span>
                   <div>
@@ -75,7 +88,15 @@ export default function AdminDashboard() {
                     <div className="text-gray-500 text-sm">{s.course_name || 'No course'} · {s.player_count} players</div>
                   </div>
                 </div>
-                <div className="text-gray-400 text-sm">{new Date(s.ended_at || s.started_at).toLocaleDateString()}</div>
+                <div className="flex items-center gap-3">
+                  <div className="text-gray-400 text-sm">{new Date(s.ended_at || s.started_at).toLocaleDateString()}</div>
+                  <button
+                    onClick={() => handleRunAgain(s)}
+                    className="opacity-0 group-hover:opacity-100 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-700 text-gray-300 hover:border-unoh-red hover:text-white transition-all"
+                    title="Re-launch this game">
+                    ▶ Run Again
+                  </button>
+                </div>
               </div>
             ))}
             {recent.length === 0 && (
