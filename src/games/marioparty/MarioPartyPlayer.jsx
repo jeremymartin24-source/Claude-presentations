@@ -19,6 +19,18 @@ export default function MarioPartyPlayer({ gameState, roomCode, playerId }) {
   const myChar = myPlayer?.characterId;
   const char = myChar ? CHARACTERS[myChar] : null;
 
+  // Always-active roll listener — mounted regardless of current phase,
+  // so we never miss the game:diceRoll event due to component timing.
+  const [lastRoll, setLastRoll] = useState(null);
+  useEffect(() => {
+    socket.on('game:diceRoll', (data) => setLastRoll(data));
+    return () => socket.off('game:diceRoll');
+  }, []);
+  // Clear roll result when a new turn starts
+  useEffect(() => {
+    if (phase === 'itemUse') setLastRoll(null);
+  }, [phase, gameState?.currentPlayerId]);
+
   // ── Lobby wait ────────────────────────────────────────────────────────────
   if (phase === 'lobby') {
     return (
@@ -132,6 +144,7 @@ export default function MarioPartyPlayer({ gameState, roomCode, playerId }) {
             playerId={playerId}
             isMyTurn={isMyTurn}
             myPlayer={myPlayer}
+            lastRoll={lastRoll}
           />
         </AnimatePresence>
 
@@ -143,7 +156,7 @@ export default function MarioPartyPlayer({ gameState, roomCode, playerId }) {
 }
 
 // ── Phase-specific UI for player ──────────────────────────────────────────────
-function PhaseUI({ phase, gameState, playerId, isMyTurn, myPlayer }) {
+function PhaseUI({ phase, gameState, playerId, isMyTurn, myPlayer, lastRoll }) {
   switch (phase) {
     case 'itemUse':
     case 'warpSelect':
@@ -163,7 +176,7 @@ function PhaseUI({ phase, gameState, playerId, isMyTurn, myPlayer }) {
           </div>
           <ItemUsePanel gameState={gameState} playerId={playerId} />
           <div style={{ marginTop: '1rem' }}>
-            <DiceRoll gameState={gameState} playerId={playerId} isHost={false} />
+            <DiceRoll gameState={gameState} playerId={playerId} isHost={false} lastRoll={lastRoll} />
           </div>
         </motion.div>
       );
@@ -173,7 +186,13 @@ function PhaseUI({ phase, gameState, playerId, isMyTurn, myPlayer }) {
       return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-          <DiceRoll gameState={gameState} playerId={playerId} isHost={false} />
+          {/* Spectator label */}
+          {!isMyTurn && (
+            <p style={{ opacity: 0.6, fontSize: '0.85rem' }}>
+              {gameState?.currentPlayerName} is rolling…
+            </p>
+          )}
+          <DiceRoll gameState={gameState} playerId={playerId} isHost={false} lastRoll={lastRoll} />
           {phase === 'moving' && (
             <p style={{ opacity: 0.6, fontSize: '0.85rem' }}>Moving…</p>
           )}

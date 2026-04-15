@@ -14,11 +14,22 @@ import { BOARD_SPACES } from '../../../shared/boardData.js';
 
 export default function MarioPartyHost({ gameState, roomCode }) {
   const [shareUrl, setShareUrl] = useState('');
+  const [lastRoll, setLastRoll] = useState(null);
 
   useEffect(() => {
     const url = `${window.location.origin}?role=player&code=${roomCode}`;
     setShareUrl(url);
   }, [roomCode]);
+
+  // Always-active listener so the animation fires even before the phase
+  // re-render has had a chance to mount the DiceRoll child.
+  useEffect(() => {
+    socket.on('game:diceRoll', (data) => setLastRoll(data));
+    return () => socket.off('game:diceRoll');
+  }, []);
+  useEffect(() => {
+    if (gameState?.phase === 'itemUse') setLastRoll(null);
+  }, [gameState?.phase, gameState?.currentPlayerId]);
 
   const phase = gameState?.phase ?? 'lobby';
 
@@ -137,7 +148,7 @@ export default function MarioPartyHost({ gameState, roomCode }) {
 
         {/* Phase-specific UI */}
         {(phase === 'itemUse' || phase === 'rolling') && (
-          <DiceRoll gameState={gameState} playerId={null} isHost={true} />
+          <DiceRoll gameState={gameState} playerId={null} isHost={true} lastRoll={lastRoll} />
         )}
 
         {phase === 'question' && (

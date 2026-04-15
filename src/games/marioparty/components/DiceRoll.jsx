@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import socket from '../../../socket.js';
+import socket from '../../../socket.js'; // still used for player:roll emit
 
 // Single die face using SVG dot patterns
 function DieFace({ value, size = 80, color = '#fff', bg = '#2C2C54' }) {
@@ -30,7 +30,9 @@ function DieFace({ value, size = 80, color = '#fff', bg = '#2C2C54' }) {
   );
 }
 
-export default function DiceRoll({ gameState, playerId, isHost }) {
+// lastRoll is lifted up from the parent so the listener is always active,
+// even when this component wasn't mounted when the event fired.
+export default function DiceRoll({ gameState, playerId, isHost, lastRoll }) {
   const [rolling, setRolling] = useState(false);
   const [rollResult, setRollResult] = useState(null);
   const [displayValue, setDisplayValue] = useState(null);
@@ -39,27 +41,25 @@ export default function DiceRoll({ gameState, playerId, isHost }) {
   const currentPlayerId = gameState?.currentPlayerId;
   const isMyTurn = currentPlayerId === playerId;
 
+  // Trigger animation whenever a new roll arrives via prop
   useEffect(() => {
-    function onRoll({ rolls, total }) {
-      setRolling(true);
-      setRollResult({ rolls, total });
+    if (!lastRoll) return;
+    setRolling(true);
+    setRollResult(lastRoll);
 
-      // Animate scramble then settle
-      let count = 0;
-      const interval = setInterval(() => {
-        setDisplayValue(Math.ceil(Math.random() * 6));
-        count++;
-        if (count > 14) {
-          clearInterval(interval);
-          setDisplayValue(total);
-          setTimeout(() => setRolling(false), 600);
-        }
-      }, 80);
-    }
+    let count = 0;
+    const interval = setInterval(() => {
+      setDisplayValue(Math.ceil(Math.random() * 6));
+      count++;
+      if (count > 14) {
+        clearInterval(interval);
+        setDisplayValue(lastRoll.total);
+        setTimeout(() => setRolling(false), 600);
+      }
+    }, 80);
 
-    socket.on('game:diceRoll', onRoll);
-    return () => socket.off('game:diceRoll', onRoll);
-  }, []);
+    return () => clearInterval(interval);
+  }, [lastRoll]);
 
   // Reset on new turn
   useEffect(() => {
