@@ -1,0 +1,216 @@
+/* ── UNOH Review Game Platform — Global Styles ─────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --red:    #E74C3C;
+  --blue:   #3498DB;
+  --green:  #2ECC71;
+  --yellow: #F1C40F;
+  --purple: #9B59B6;
+  --teal:   #1ABC9C;
+  --pink:   #FF69B4;
+  --dark:   #1A1A2E;
+  --darker: #0D0D1A;
+  --mid:    #2C2C54;
+  --light:  #ECF0F1;
+  --coin:   #FFD700;
+
+  --font-main: 'Segoe UI', system-ui, sans-serif;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --radius: 12px;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--darker);
+  color: var(--light);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollable containers ───────────────────────────────────────────────── */
+.scroll-y { overflow-y: auto; }
+
+/* ── Layout primitives ───────────────────────────────────────────────────── */
+.flex      { display: flex; }
+.flex-col  { display: flex; flex-direction: column; }
+.center    { display: flex; align-items: center; justify-content: center; }
+.gap-1     { gap: 0.5rem; }
+.gap-2     { gap: 1rem; }
+.gap-3     { gap: 1.5rem; }
+.w-full    { width: 100%; }
+.h-full    { height: 100%; }
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--mid);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.4rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+.btn:active  { transform: scale(0.95); }
+.btn:hover   { filter: brightness(1.15); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; filter: none; transform: none; }
+
+.btn-red    { background: var(--red);    color: #fff; }
+.btn-blue   { background: var(--blue);   color: #fff; }
+.btn-green  { background: var(--green);  color: #fff; }
+.btn-yellow { background: var(--yellow); color: var(--dark); }
+.btn-purple { background: var(--purple); color: #fff; }
+.btn-dark   { background: var(--dark);   color: var(--light); border: 1px solid #444; }
+.btn-lg     { padding: 0.9rem 2rem; font-size: 1.2rem; border-radius: 12px; }
+.btn-sm     { padding: 0.35rem 0.8rem; font-size: 0.85rem; }
+
+/* ── Badges / chips ───────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.badge-coin   { background: var(--coin);   color: var(--dark); }
+.badge-star   { background: var(--yellow); color: var(--dark); }
+.badge-red    { background: var(--red);    color: #fff; }
+
+/* ── Section headings ────────────────────────────────────────────────────── */
+h1, h2, h3 { line-height: 1.2; }
+.title {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.subtitle {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+/* ── Inputs ───────────────────────────────────────────────────────────────── */
+.input {
+  background: rgba(255,255,255,0.07);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: var(--light);
+  font-size: 1.1rem;
+  padding: 0.6rem 1rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--blue); }
+.input::placeholder { opacity: 0.4; }
+
+/* ── Home screen ─────────────────────────────────────────────────────────── */
+.home-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  background: radial-gradient(ellipse at center, var(--mid) 0%, var(--darker) 70%);
+}
+
+.home-logo {
+  font-size: 5rem;
+  line-height: 1;
+}
+
+.home-title {
+  text-align: center;
+}
+
+.home-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+@media (max-width: 480px) {
+  .home-cards { grid-template-columns: 1fr; }
+}
+
+.home-card {
+  background: var(--mid);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.home-card:hover { border-color: rgba(255,255,255,0.15); }
+
+/* ── Lobby ────────────────────────────────────────────────────────────────── */
+.lobby-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.room-code {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  color: var(--yellow);
+  text-shadow: 0 0 20px rgba(241,196,15,0.4);
+}
+
+/* ── Game log ─────────────────────────────────────────────────────────────── */
+.game-log {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  text-align: center;
+  max-width: 400px;
+}
+
+/* ── Scrollbar styling ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 999px; }
+
+/* ── Animated background stars ───────────────────────────────────────────── */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.6; }
+}
