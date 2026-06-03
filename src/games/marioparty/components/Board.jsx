@@ -28,10 +28,10 @@ const PUCK_GLOW = {
 // ── Main export ───────────────────────────────────────────────────────────────
 export default function Board({ gameState }) {
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ position: 'absolute', inset: 0 }}>
       <Canvas
         shadows
-        style={{ background: '#0D0D1A' }}
+        style={{ background: '#0D0D1A', width: '100%', height: '100%' }}
         gl={{ antialias: true }}
       >
         {/*
