@@ -1,6 +1,6 @@
-import { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrthographicCamera, Billboard, Text } from '@react-three/drei';
+import { useRef, useMemo, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Billboard, Text } from '@react-three/drei';
 import { BOARD_SPACES, SPACE_COLORS, SPACE_ICONS } from '../../../../shared/boardData.js';
 import { CHARACTERS } from '../../../../shared/characters.js';
 
@@ -25,20 +25,32 @@ const PUCK_GLOW = {
   star: 0.35, minigame: 0.25, shop: 0.15, event: 0.12,
 };
 
+// ── Camera setup — must live inside Canvas to access useThree ─────────────────
+function CameraSetup() {
+  const { camera } = useThree();
+  useEffect(() => {
+    camera.position.set(0, 13, 9);
+    camera.zoom = 48;
+    camera.near = 0.1;
+    camera.far = 1000;
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix();
+  }, [camera]);
+  return null;
+}
+
 // ── Main export ───────────────────────────────────────────────────────────────
 export default function Board({ gameState }) {
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
       <Canvas
+        orthographic
         shadows
+        camera={{ zoom: 48, near: 0.1, far: 1000 }}
         style={{ background: '#0D0D1A', width: '100%', height: '100%' }}
         gl={{ antialias: true }}
       >
-        {/*
-          Orthographic camera positioned high + slightly behind the board
-          giving a classic Mario Party isometric angle.
-        */}
-        <OrthographicCamera makeDefault position={[0, 13, 9]} zoom={48} />
+        <CameraSetup />
 
         {/* Key light from top-right casts shadows across puck surfaces */}
         <directionalLight
