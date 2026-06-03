@@ -1,29 +1,36 @@
 import { motion } from 'framer-motion';
 import { CHARACTERS } from '../../../../shared/characters.js';
 
-// ── Animation variants ────────────────────────────────────────────────────────
+// ── Animation variants (CSS 3D enhanced) ─────────────────────────────────────
+// rotateY adds the illusion of depth — characters sway/spin in 3D space
+// drop-shadow on the SVG provides a ground shadow for perceived 3D depth
 const VARIANTS = {
   idle: {
     y: [0, -4, 0],
+    rotateY: [-4, 4, -4],
     transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
   },
   walk: {
     rotate: [-6, 6, -6],
+    rotateY: [-10, 10, -10],
     y: [0, -2, 0],
     transition: { duration: 0.45, repeat: Infinity, ease: 'easeInOut' },
   },
   win: {
     y: [0, -12, 0],
     scale: [1, 1.12, 1],
-    transition: { duration: 0.5, repeat: Infinity, ease: 'easeInOut' },
+    rotateY: [0, 360],
+    transition: { duration: 0.7, repeat: Infinity, ease: 'easeInOut' },
   },
   lose: {
     rotate: [0, -15, 0],
+    rotateY: [-20, 0, -20],
     y: [0, 3, 0],
     transition: { duration: 1.2, repeat: Infinity, ease: 'easeInOut' },
   },
   selected: {
     scale: [1, 1.08, 1],
+    rotateY: [0, 18, 0],
     transition: { duration: 0.7, repeat: Infinity, ease: 'easeInOut' },
   },
 };
@@ -205,11 +212,20 @@ export default function CharacterSprite({ characterId, animation = 'idle', size 
   const variant = VARIANTS[animation] ?? VARIANTS.idle;
 
   return (
-    <motion.div
-      style={{ width: size, height: size * 1.4, display: 'inline-block' }}
-      animate={variant}
-    >
-      <CharacterSVG char={char} id={characterId} />
-    </motion.div>
+    // Outer div establishes the CSS perspective so rotateY looks 3D
+    <div style={{ perspective: 500, display: 'inline-block' }}>
+      <motion.div
+        style={{
+          width: size,
+          height: size * 1.4,
+          display: 'inline-block',
+          transformStyle: 'preserve-3d',
+          filter: 'drop-shadow(2px 8px 5px rgba(0,0,0,0.55))',
+        }}
+        animate={variant}
+      >
+        <CharacterSVG char={char} id={characterId} />
+      </motion.div>
+    </div>
   );
 }
